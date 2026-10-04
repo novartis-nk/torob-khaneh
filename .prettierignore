@@ -1,0 +1,6 @@
+dist
+node_modules
+data/offers.json
+artifacts
+package-lock.json
+test-results

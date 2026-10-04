@@ -1,0 +1,27 @@
+
+> torob-khaneh@1.0.0 test:e2e
+> playwright test
+
+
+Running 14 tests using 2 workers
+
+(node:29056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/browser/product.spec.mjs:19:1 › zero-result state preserves constraints (1.1s)
+  ✓   1 tests/browser/product.spec.mjs:7:1 › Persian intent produces matching homes and removable filters (1.2s)
+  ✓   3 tests/browser/product.spec.mjs:26:1 › source evidence, stale offers and ranking explanation are inspectable (845ms)
+  ✓   4 tests/browser/product.spec.mjs:44:1 › bookmarks persist after reload (834ms)
+  ✓   5 tests/browser/product.spec.mjs:51:1 › comparison changes its math when personal weight changes (678ms)
+  ✓   6 tests/browser/product.spec.mjs:60:1 › saved search restores filters (1.3s)
+  ✓   7 tests/browser/product.spec.mjs:73:1 › API failure has a working retry (883ms)
+  ✓   8 tests/browser/product.spec.mjs:81:1 › map is interactive and explicitly schematic (556ms)
+  ✓   9 tests/browser/product.spec.mjs:87:1 › mobile layout and filters work without horizontal overflow (807ms)
+  ✓  10 tests/browser/product.spec.mjs:96:1 › desktop accessibility has no serious or critical violations (1.3s)
+  ✓  11 tests/browser/product.spec.mjs:100:1 › detail dialog accessibility and keyboard dismissal (1.0s)
+  ✓  13 tests/browser/product.spec.mjs:120:1 › property tabs support keyboard navigation in RTL (541ms)
+  ✓  12 tests/browser/product.spec.mjs:107:1 › nested source dialog has a unique name and restores the property dialog (1.0s)
+  ✓  14 tests/browser/product.spec.mjs:134:1 › mobile accessibility includes the filter panel (1.2s)
+
+  14 passed (7.9s)

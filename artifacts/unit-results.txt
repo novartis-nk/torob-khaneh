@@ -1,0 +1,38 @@
+
+> torob-khaneh@1.0.0 test
+> node --test tests/*.test.mjs
+
+(node:29033) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Persian and Arabic digits, decimal magnitudes and rials normalize exactly (0.697875ms)
+✔ unknown, negative and missing prices never become zero (0.133708ms)
+✔ all three schemas have explicit units and provenance (0.070625ms)
+✔ invalid records are rejected, including impossible future timestamps (0.603583ms)
+✔ 27 valid offers cluster into 14 distinct homes (0.057584ms)
+✔ same photo, area and neighborhood with a different floor stay separate (0.059833ms)
+✔ missing identity evidence never merges unrelated units (0.045125ms)
+✔ a proximity chain does not create transitive false matches (0.054291ms)
+✔ inconsistent parking data does not merge (0.050834ms)
+✔ Persian user intent extracts visible, editable hard constraints (0.976375ms)
+✔ Arabic spelling, Finglish and billions normalize (0.285083ms)
+✔ full deposit is zero rent, not an absent budget (0.300208ms)
+✔ unsupported requirements are disclosed (0.050333ms)
+✔ malformed and out-of-range filters fail closed (0.12375ms)
+✔ same offer must meet BOTH deposit and rent budgets (0.110583ms)
+✔ stale cheap offers cannot drive the headline price (0.169875ms)
+✔ stale-only homes are not searchable (0.075709ms)
+✔ unknown amenity fails a required amenity filter (0.068625ms)
+✔ hard filters are never automatically relaxed (0.049ms)
+✔ score is finite and its explanation reconciles (0.075ms)
+✔ personal deposit weight changes selection, not raw offer values (0.482208ms)
+✔ explicit sort order is stable and respects selected offer (0.1055ms)
+✔ ingestion persists raw evidence, quarantines bad prices and is idempotent (2.999084ms)
+✔ a newly invalid observation removes a formerly valid quote (0.213875ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.157334
