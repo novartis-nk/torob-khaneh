@@ -42,6 +42,9 @@ const EXAMPLES = [
 ];
 const init = initialParams();
 export default function App() {
+  useEffect(() => {
+    document.title = 'ترب خانه | یک خانه، همهٔ پیشنهادها';
+  }, []);
   const [query, setQuery] = useState(init.q),
     [draft, setDraft] = useState(init.q),
     [filters, setFilters] = useState(init.filters),
@@ -228,7 +231,7 @@ export default function App() {
       </a>
       <header className="header">
         <div className="header-inner">
-          <button className="brand" onClick={reset} aria-label="ترب خانه؛ صفحهٔ اصلی">
+          <a className="brand" href="/" aria-label="ترب؛ صفحهٔ اصلی">
             <span className="brand-mark">
               <Icon name={House} size={25} />
             </span>
@@ -236,9 +239,9 @@ export default function App() {
               ترب<span>خانه</span>
             </strong>
             <span className="brand-beta">یک تجربهٔ تازه</span>
-          </button>
+          </a>
           <div className="service-switch" aria-label="سرویس‌ها">
-            <a href="/" aria-current="page">
+            <a href="/khaneh" aria-current="page">
               خانه
             </a>
             <a href="/safar">سفر</a>

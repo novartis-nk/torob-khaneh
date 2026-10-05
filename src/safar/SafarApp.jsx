@@ -336,7 +336,7 @@ export default function SafarApp() {
       </a>
       <header className="sf-header">
         <div className="sf-header-inner">
-          <a className="brand" href="/safar" aria-label="ترب سفر؛ صفحهٔ اصلی">
+          <a className="brand" href="/" aria-label="ترب؛ صفحهٔ اصلی">
             <span className="brand-mark">
               <Icon name={Compass} size={25} />
             </span>
@@ -345,7 +345,7 @@ export default function SafarApp() {
             </strong>
           </a>
           <div className="service-switch" aria-label="سرویس‌ها">
-            <a href="/">خانه</a>
+            <a href="/khaneh">خانه</a>
             <a href="/safar" aria-current="page">
               سفر
             </a>

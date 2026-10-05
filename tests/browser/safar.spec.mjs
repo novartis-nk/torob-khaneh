@@ -7,7 +7,7 @@ const ready = async (page) => {
 test('Safar sits alongside housing and attributes public listings to three sources', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto('/khaneh');
   await page.locator('.service-switch').getByRole('link', { name: 'سفر', exact: true }).click();
   await expect(page.locator('.sf-card').first()).toBeVisible();
   for (const name of ['جاباما', 'اتاقک', 'جاجیگا'])

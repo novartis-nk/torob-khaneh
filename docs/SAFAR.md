@@ -1,6 +1,6 @@
 # ترب سفر — implemented short-stay catalog comparison
 
-Safar is available at `/safar`, alongside long-term housing at `/`. It uses the same Persian RTL, restrained red/white interface, source attribution and comparison patterns. This is an independent prototype for the Torob challenge.
+Safar is available at `/safar`, alongside long-term housing at `/khaneh`, with a shared minimal search landing page at `/`. It uses the same Persian RTL, restrained red/white interface, source attribution and comparison patterns. This is an independent prototype for the Torob challenge.
 
 ## Why this market and scope
 

@@ -2,9 +2,11 @@
 
 A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Node + SQLite, with source normalization, conservative duplicate grouping, explicit budget constraints and explainable ranking.
 
+The minimal search landing page at `/` has **اجاره و خرید** and **سفر** tabs. Submitting a search opens the selected service with the query or explicit destination/type filters. The housing catalog currently supports rentals, not purchases. Existing housing search links at `/?q=…` continue to work.
+
 Two services share the interface:
 
-- **خانه** at `/`: synthetic long-term rental data, conservative duplicate grouping and explainable ranking.
+- **خانه** at `/khaneh`: synthetic long-term rental data, conservative duplicate grouping and explainable ranking.
 - **سفر** at `/safar`: a real public catalog snapshot from Jabama, Otaghak and Jajiga, Persian trip dates, guests, source filters, bookmarks and shareable property comparisons.
 
 This is an independent prototype without official Torob affiliation or a runtime LLM. Housing listings, prices, photos, coordinates and walk times are synthetic. Safar has 75 observed listings in Ramsar and surroundings; nightly starting prices do not establish date-specific availability or a final trip price. No live booking/quote integration is connected. See [Safar decisions and source limits](docs/SAFAR.md).
@@ -81,6 +83,8 @@ Browser tests use installed Google Chrome. If Chrome is unavailable, install Pla
 - [Safar walkthrough](artifacts/torob-safar-demo.mp4)
 - [Original 3:21 housing walkthrough](artifacts/torob-khaneh-demo.mp4), 4.3 MB
 - `artifacts/desktop.png`, `artifacts/mobile.png`: verified screenshots
+
+The existing videos demonstrate the result pages and predate the minimal landing page. `artifacts/landing-desktop.png` and `artifacts/landing-mobile.png` show the new entry page.
 
 With the app running, `npm run demo` records housing. `npm run demo:safar` records Safar and joins it to the existing housing video. `ffmpeg` is required to export MP4. The recording is silent with Persian captions; the script above is available for a personal voiceover.
 

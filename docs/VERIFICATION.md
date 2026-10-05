@@ -5,7 +5,7 @@ Verified on Node 25.2.1 and installed Google Chrome. Scope: housing plus Safar.
 | Check | Result |
 |---|---|
 | `npm test` | 34 tests passed |
-| `npm run test:e2e` | 25 browser tests passed |
+| `npm run test:e2e` | 31 browser tests passed |
 | `npm run build` | Vite production build passed |
 | `npm run check:format` | All checked files formatted |
 | Production smoke | Housing: 13 results. Safar: 72 results for four adults from 75 catalog listings. No browser errors. |
@@ -21,3 +21,7 @@ Screenshots and a combined-video Safar frame were visually reviewed. Housing tes
 Browser tests exercise both services, shortlist persistence, shared trip/compare restoration, calendar and guest changes, confirmed-total filtering, request failure/retry, malformed shared links, mobile filters and accessibility. Source refresh successfully retrieved 36 Jabama, 24 Otaghak and 15 Jajiga records. Earlier refresh failures retained prior timestamps rather than claiming fresh observations.
 
 Limits: Safar observations are public catalog snapshots, not live trip quotes. No booking, partner API integration, real user study, production load test, cross-platform unit-identity evaluation or container build was performed. The original housing video is unchanged; the combined video adds Safar. Automated checks are not a complete accessibility certification.
+
+## Minimal search entry page
+
+Added `/` with keyboard-accessible housing/travel tabs and separate search drafts. Housing results moved to `/khaneh`; old root-level housing query links remain compatible. Search submission, travel destination/type extraction, return-to-home navigation, mobile overflow, accessibility and zero result-catalog requests on the landing page are covered by six additional browser tests. Desktop and mobile screenshots were visually reviewed. Existing demo videos predate this entry-page revision.

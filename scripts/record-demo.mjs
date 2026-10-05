@@ -42,7 +42,7 @@ async function pause(seconds) {
   await delay(seconds * 1000);
 }
 try {
-  await page.goto(process.env.DEMO_URL || 'http://127.0.0.1:4317');
+  await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:4317'}/khaneh`);
   await page.waitForSelector('.home-card');
   await page.evaluate(() => document.fonts.ready);
   await caption(

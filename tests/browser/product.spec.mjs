@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/khaneh');
   await expect(page.locator('.home-card')).toHaveCount(13);
 });
 test('Persian intent produces matching homes and removable filters', async ({ page }) => {
@@ -61,7 +61,7 @@ test('saved search restores filters', async ({ page }) => {
   await page.getByRole('button', { name: 'رهن کامل', exact: true }).click();
   await expect(page.locator('.home-card')).toHaveCount(1);
   await page.getByRole('button', { name: 'ذخیرهٔ جست‌وجو', exact: true }).click();
-  await page.getByRole('button', { name: 'ترب خانه؛ صفحهٔ اصلی' }).click();
+  await page.goto('/khaneh');
   await expect(page.locator('.home-card')).toHaveCount(13);
   await page.getByRole('button', { name: 'جست‌وجوهای ذخیره‌شده', exact: true }).click();
   await page
