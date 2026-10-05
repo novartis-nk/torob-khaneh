@@ -9,7 +9,7 @@
     "repository": {
       "url": "git@localhost:torob-khaneh.git",
       "link_mode": "local-only",
-      "revision": "3757205b565d76f0a1308b4960cd748cf01493e9"
+      "revision": "74e55bdea9bb5663efc1208392e1f05399ca8a3c"
     },
     "legend": {
       "mode": "all",
@@ -84,7 +84,7 @@
       "sublabel": "direct · agency · portal",
       "tag": "add websites here",
       "icon": "backend",
-      "pos": [1080, 30],
+      "pos": [700, 30],
       "size": [190, 72],
       "sources": [{ "path": "backend/adapters.py", "line": 186, "end_line": 201, "label": "adapter factory" }]
     },
@@ -106,7 +106,7 @@
       "sublabel": "raw · normalized · source requests · tasks",
       "tag": "Repository pattern",
       "icon": "database",
-      "pos": [800, 420],
+      "pos": [780, 420],
       "size": [190, 72],
       "sources": [{ "path": "backend/postgres.py", "line": 24, "end_line": 61, "label": "PostgreSQL tables" }]
     },
@@ -117,7 +117,7 @@
       "sublabel": "claim · retry · adapter execution",
       "tag": "FOR UPDATE SKIP LOCKED",
       "icon": "clock",
-      "pos": [800, 760],
+      "pos": [780, 760],
       "size": [210, 72],
       "sources": [{ "path": "backend/worker.py", "line": 8, "end_line": 25, "label": "worker loop" }]
     },
@@ -128,7 +128,7 @@
       "sublabel": "data/offers.json + Safar JSON",
       "tag": "local fixtures",
       "icon": "external",
-      "pos": [1080, 600],
+      "pos": [700, 600],
       "size": [190, 72],
       "sources": [{ "path": "backend/app.py", "line": 35, "end_line": 57, "label": "fixture loading" }]
     }
@@ -142,14 +142,12 @@
     { "id": "api-housing", "from": "api", "to": "housing", "label": "GET /api/search" },
     { "id": "api-crawl", "from": "api", "to": "crawl", "label": "POST /api/crawl-requests" },
     { "id": "api-travel", "from": "api", "to": "travel", "label": "GET /api/safar/search" },
-    { "id": "housing-ranking", "from": "housing", "to": "ranking", "label": "eligible homes", "variant": "emphasis" },
+    { "id": "housing-ranking", "from": "housing", "to": "ranking", "variant": "emphasis" },
     { "id": "housing-repository", "from": "housing", "to": "repository", "label": "read observations" },
-    { "id": "crawl-repository", "from": "crawl", "to": "repository", "label": "INSERT queued job", "variant": "dashed" },
     { "id": "crawl-worker", "from": "crawl", "to": "worker", "label": "queued task", "variant": "dashed" },
     { "id": "worker-repository", "from": "worker", "to": "repository", "label": "claim with row lock", "variant": "dashed" },
     { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read Safar catalog" },
-    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed" },
-    { "id": "snapshots-adapters", "from": "snapshots", "to": "adapters", "label": "housing batch input", "variant": "dashed" }
+    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed" }
   ],
   "cards": [
     { "dot": "cyan", "title": "Search flow", "items": ["React sends structured search to Python", "Housing applies intent, freshness and paired budget filters", "Ranking strategies order only eligible homes"] },

@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
-    "sha256": "af29066e2df3de65c8e9b6a04c09ea2ee1326abd4ffaac1bb6bd867c5c168ab8",
-    "bytes": 6154
+    "sha256": "b39f70e475c2845546be201267e156d9ba03c6d7b0e57eab93f56cde6663586f",
+    "bytes": 6501
   },
   "artifact": {
     "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
-    "sha256": "938ca3f1fef73efde656ab0d25e201dd250a8ea786402b28325fea4947f137f0",
-    "bytes": 768858
+    "sha256": "8209b6ccec9a38b3c5f9db11a5832293b2568c92c3d103addde7e6358f93164c",
+    "bytes": 770158
   },
   "gates": {
     "validate": "pass",
@@ -43,5 +43,130 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 1628
+  "durationMs": 1560,
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 4,
+      "routesOverSuggestedBends": 1,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "api-crawl",
+            "from": "api",
+            "to": "crawl",
+            "label": "POST /api/crawl-requests",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "right": {
+            "id": "housing-repository",
+            "from": "housing",
+            "to": "repository",
+            "label": "read observations",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "point": [
+            635,
+            336
+          ]
+        },
+        {
+          "left": {
+            "id": "housing-ranking",
+            "from": "housing",
+            "to": "ranking",
+            "label": "",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "right": {
+            "id": "adapters-repository",
+            "from": "adapters",
+            "to": "repository",
+            "label": "normalized offers",
+            "collectionIndex": 9,
+            "artifactIndex": 10
+          },
+          "point": [
+            795,
+            236
+          ]
+        },
+        {
+          "left": {
+            "id": "crawl-worker",
+            "from": "crawl",
+            "to": "worker",
+            "label": "queued task",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "right": {
+            "id": "worker-repository",
+            "from": "worker",
+            "to": "repository",
+            "label": "claim with row lock",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "point": [
+            1013,
+            459.4
+          ],
+          "sharedNode": "worker"
+        },
+        {
+          "left": {
+            "id": "crawl-worker",
+            "from": "crawl",
+            "to": "worker",
+            "label": "queued task",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "right": {
+            "id": "adapters-repository",
+            "from": "adapters",
+            "to": "repository",
+            "label": "normalized offers",
+            "collectionIndex": 9,
+            "artifactIndex": 10
+          },
+          "point": [
+            882,
+            336
+          ]
+        }
+      ],
+      "detours": [
+        {
+          "relationship": {
+            "id": "crawl-worker",
+            "from": "crawl",
+            "to": "worker",
+            "label": "queued task",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "bends": 3,
+          "stretch": 1.572
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "api → crawl crosses housing → repository: move the node of whichever is a branch, return, or second entrance to the other side of the main path, so that relationship runs through an empty corridor.",
+      "housing → ranking crosses adapters → repository: move the node of whichever is a branch, return, or second entrance to the other side of the main path, so that relationship runs through an empty corridor.",
+      "crawl → worker and worker → repository cross next to worker: move node crawl or repository so the two reach worker from different sides (for example one level with it, one directly above or below it).",
+      "crawl → worker crosses adapters → repository: move the node of whichever is a branch, return, or second entrance to the other side of the main path, so that relationship runs through an empty corridor.",
+      "crawl → worker needs 3 bends: move node crawl or worker so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
 }

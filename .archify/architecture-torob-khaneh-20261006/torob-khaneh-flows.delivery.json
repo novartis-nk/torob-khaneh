@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "d67017d8-a540-4df2-9f12-ad480f333e5d",
+  "receiptId": "fa49d02c-2e2c-4df8-85f8-5504d7733e4f",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
   "input": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
   "output": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
   "specification": {
-    "sha256": "af29066e2df3de65c8e9b6a04c09ea2ee1326abd4ffaac1bb6bd867c5c168ab8",
-    "bytes": 6154
+    "sha256": "b39f70e475c2845546be201267e156d9ba03c6d7b0e57eab93f56cde6663586f",
+    "bytes": 6501
   },
   "artifact": {
-    "sha256": "938ca3f1fef73efde656ab0d25e201dd250a8ea786402b28325fea4947f137f0",
-    "bytes": 768858
+    "sha256": "8209b6ccec9a38b3c5f9db11a5832293b2568c92c3d103addde7e6358f93164c",
+    "bytes": 770158
   }
 }
