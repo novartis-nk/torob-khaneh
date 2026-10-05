@@ -165,6 +165,32 @@
   color: #747779;
   font-size: 11px;
 }
+.landing-browse {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 27px;
+}
+.landing-browse a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid #eceeef;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #565e61;
+  text-decoration: none;
+  font-size: 12px;
+}
+.landing-browse a:hover {
+  color: var(--red);
+  border-color: #e7c9c9;
+  background: #fff;
+}
 .landing-about {
   padding: 24px;
   font-size: 13px;
@@ -237,6 +263,14 @@
     justify-content: center;
     text-align: center;
     font-size: 10px;
+  }
+  .landing-browse {
+    gap: 8px;
+    margin-top: 22px;
+  }
+  .landing-browse a {
+    font-size: 11px;
+    padding-inline: 11px;
   }
   .landing-footer > span:last-child {
     display: none;

@@ -163,6 +163,16 @@ export default function Landing() {
               ))}
             </div>
           </div>
+          <nav className="landing-browse" aria-label="ورود مستقیم بدون جست‌وجو">
+            <a href="/khaneh">
+              <Icon name={House} size={16} />
+              دیدن همهٔ خانه‌ها
+            </a>
+            <a href="/safar">
+              <Icon name={Compass} size={16} />
+              دیدن همهٔ اقامتگاه‌ها
+            </a>
+          </nav>
         </section>
       </main>
       <footer className="landing-footer">
