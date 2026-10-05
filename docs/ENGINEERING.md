@@ -4,11 +4,11 @@ This document describes the housing implementation. For the separately implement
 
 ## Data path
 
-`website/schema adapters → strict normalization → SQLite raw + normalized observations → complete-link grouping → hard eligibility filters → offer selection → ranking strategy → UI evidence`
+`website/API or crawl task → adapter → strict normalization → PostgreSQL raw + normalized observations → complete-link grouping → hard eligibility filters → offer selection → ranking strategy → UI evidence`
 
-The runtime backend is Python and uses only the standard library. React is compiled to static assets; Vite proxies `/api` to Python during development, and Python serves `dist/` in production. SQLite holds raw observations, normalized observations, rejected records and crawl-source requests.
+The runtime backend is Python. React is compiled to static assets; Vite proxies `/api` to Python during development, and Python serves `dist/` in production. PostgreSQL holds raw observations, normalized observations, rejected records, source onboarding requests and crawl tasks.
 
-Ingestion runs as an explicit local batch command. The public crawl-request endpoint queues a source for review; it does not fetch the submitted URL. The existing Safar refresh command is an explicit offline snapshot tool. Calling either the housing fixture or a queued request a completed crawl would misrepresent the demonstration.
+Website onboarding has two explicit paths. An API request stores the provider endpoint and waits for access/adapter review. A crawl request creates a durable task; the separate `backend.worker` claims tasks with PostgreSQL row locks so crawling never blocks an HTTP request. The worker boundary is where rate limits, retries, robots policy and adapter execution belong.
 
 ## Extensibility patterns
 
@@ -16,7 +16,7 @@ The backend separates source-specific behavior from comparison logic:
 
 - **Adapter + Registry:** `OfferAdapter` converts one website/schema into the canonical offer model. `AdapterRegistry` selects it from the schema key. Adding a source means adding and registering an adapter; the repository and HTTP handler stay unchanged.
 - **Strategy + Registry:** each `RankingStrategy` orders already-eligible homes. The registry currently exposes recommended, rent, deposit, newest and metro strategies. A learned or experiment-specific ranker can be registered behind the same contract.
-- **Repository:** `SQLiteRepository` owns persistence. Search and crawl services do not contain SQL, so a production PostgreSQL implementation can replace SQLite without changing API behavior.
+- **Repository:** `PostgresRepository` owns persistence. Search, onboarding and worker services do not contain SQL, so storage remains behind one boundary.
 - **Application services:** housing search, travel search and crawl requests own use-case rules. The HTTP layer only parses requests, maps validation failures and serializes responses.
 - **Dependency direction:** the protocols in `backend/ports.py` are the stable boundary. Adapters and persistence depend on those contracts; UI and HTTP code do not depend on individual websites.
 
@@ -28,7 +28,8 @@ For many websites, the next operational layer is a durable worker queue with per
 - `GET /api/catalog`: source counts, rejection count, neighborhoods, fixture timestamp.
 - `GET /api/search?q=...&maxDeposit=600&maxRent=20&rate=1`: structured inputs override extracted intent; price filters are in millions of toman. Unknown/invalid supported filter values return 400. All amounts in returned offers are integer toman.
 - `GET /api/source/:id`: raw and normalized sample observation.
-- `POST /api/crawl-requests`: validate and queue `{url, vertical, notes}`; returns HTTP 202 and a tracking ID.
+- `POST /api/source-requests`: validate `{url, vertical, method, apiUrl?, notes}`; API requests wait for access review and crawl requests create a task; returns HTTP 202 and a tracking ID.
+- `POST /api/crawl-requests`: compatibility alias for `method=crawl`.
 - `GET /api/crawl-requests/:id`: inspect the queued request state.
 
 Search responses contain selected source offers, all source observations, staleness and eligibility flags, score components and evidence. Query length is bounded. Database queries are parameterized. Raw evidence is rendered as escaped text by React. Static serving is constrained to the build directory. No secrets are sent to the client.

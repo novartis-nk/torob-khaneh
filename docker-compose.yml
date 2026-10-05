@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: torob_khaneh
+      POSTGRES_USER: torob
+      POSTGRES_PASSWORD: torob_dev
+    ports:
+      - "54329:5432"
+    volumes:
+      - torob-postgres:/var/lib/postgresql/data
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://torob:torob_dev@postgres:5432/torob_khaneh
+      HOST: 0.0.0.0
+      PORT: 4317
+    ports:
+      - "4317:4317"
+    depends_on:
+      - postgres
+
+  crawl-worker:
+    build: .
+    command: ["python3", "-m", "backend.worker"]
+    environment:
+      DATABASE_URL: postgresql://torob:torob_dev@postgres:5432/torob_khaneh
+    depends_on:
+      - postgres
+
+volumes:
+  torob-postgres:

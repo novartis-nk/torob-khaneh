@@ -67,7 +67,7 @@ export default function Landing() {
   const [queries, setQueries] = useState({ housing: '', travel: '' });
   const [about, setAbout] = useState(false);
   const [crawlOpen, setCrawlOpen] = useState(false);
-  const [crawlForm, setCrawlForm] = useState({ url: '', vertical: 'housing', notes: '' });
+  const [crawlForm, setCrawlForm] = useState({ url: '', vertical: 'housing', method: 'crawl', apiUrl: '', notes: '' });
   const [crawlState, setCrawlState] = useState({ status: 'idle', message: '', request: null });
   const input = useRef(null);
   const tabs = useRef([]);
@@ -90,7 +90,7 @@ export default function Landing() {
     event.preventDefault();
     setCrawlState({ status: 'loading', message: '', request: null });
     try {
-      const response = await fetch('/api/crawl-requests', {
+      const response = await fetch(crawlForm.method === 'crawl' ? '/api/crawl-requests' : '/api/source-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(crawlForm),
@@ -254,8 +254,8 @@ export default function Landing() {
           ) : (
             <form className="landing-crawl-form" onSubmit={requestCrawl}>
               <p>
-                آدرس یک سایت عمومی را بفرستید. درخواست ذخیره می‌شود تا قوانین دسترسی، کیفیت داده و
-                آداپتر آن منبع بررسی شود؛ ثبت درخواست به معنی شروع فوری خزش نیست.
+                روش اتصال را انتخاب کنید: API برای منبعی که فهرست رسمی دارد، یا خزش که به صف
+                task-worker می‌رود. درخواست ابتدا از نظر دسترسی و کیفیت داده بررسی می‌شود.
               </p>
               <label>
                 آدرس سایت
@@ -269,6 +269,30 @@ export default function Landing() {
                   onChange={(event) => setCrawlForm({ ...crawlForm, url: event.target.value })}
                 />
               </label>
+              <label>
+                روش اتصال
+                <select
+                  value={crawlForm.method}
+                  onChange={(event) => setCrawlForm({ ...crawlForm, method: event.target.value })}
+                >
+                  <option value="crawl">خزش با صف task-worker</option>
+                  <option value="api">اتصال از طریق API</option>
+                </select>
+              </label>
+              {crawlForm.method === 'api' && (
+                <label>
+                  آدرس API
+                  <input
+                    required
+                    type="url"
+                    inputMode="url"
+                    dir="ltr"
+                    placeholder="https://example.com/api/listings"
+                    value={crawlForm.apiUrl}
+                    onChange={(event) => setCrawlForm({ ...crawlForm, apiUrl: event.target.value })}
+                  />
+                </label>
+              )}
               <label>
                 نوع داده
                 <select

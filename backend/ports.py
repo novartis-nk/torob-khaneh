@@ -34,6 +34,9 @@ class CrawlRequest:
     status: str
     adapter_key: str | None
     created_at: str
+    method: str = "crawl"
+    api_url: str | None = None
+    task_id: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -45,5 +48,7 @@ class CrawlRequest:
             "status": self.status,
             "adapterKey": self.adapter_key,
             "createdAt": self.created_at,
+            "method": self.method,
+            "apiUrl": self.api_url,
+            "taskId": self.task_id,
         }
-

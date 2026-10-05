@@ -18,12 +18,20 @@ class CrawlRequestService:
 
     def submit(self, values: Mapping[str, Any]) -> CrawlRequest:
         raw_url = str(values.get("url", "")).strip()
+        method = str(values.get("method", "crawl")).lower()
+        api_url = str(values.get("apiUrl", values.get("api_url", ""))).strip() or None
+        if method not in ("api", "crawl"):
+            raise ValidationError("invalid_source_request:method")
         vertical = str(values.get("vertical", "housing"))
         notes = str(values.get("notes", "")).strip()
         if vertical not in ("housing", "travel"):
             raise ValidationError("invalid_crawl_request:vertical")
         if len(raw_url) > 2048 or len(notes) > 500:
             raise ValidationError("invalid_crawl_request:length")
+        if method == "api" and api_url:
+            parsed_api = urlsplit(api_url)
+            if parsed_api.scheme not in ("http", "https") or not parsed_api.hostname:
+                raise ValidationError("invalid_source_request:api_url")
         parsed = urlsplit(raw_url if "://" in raw_url else f"https://{raw_url}")
         hostname = (parsed.hostname or "").rstrip(".").lower()
         try:
@@ -41,20 +49,33 @@ class CrawlRequestService:
         if address is not None:
             raise ValidationError("invalid_crawl_request:host")
         normalized = urlunsplit(("https", hostname, parsed.path or "/", parsed.query, ""))
-        identity = "crawl_" + hashlib.sha256(f"{vertical}|{normalized}".encode()).hexdigest()[:12]
+        prefix = "api_" if method == "api" else "crawl_"
+        identity = prefix + hashlib.sha256(f"{method}|{vertical}|{normalized}".encode()).hexdigest()[:12]
+        task_id = ("task_" + hashlib.sha256(identity.encode()).hexdigest()[:12]) if method == "crawl" else None
         request = CrawlRequest(
             id=identity,
             url=normalized,
             domain=hostname,
             vertical=vertical,
             notes=notes,
-            status="queued",
+            status="awaiting_api_access" if method == "api" else "queued",
             adapter_key=None,
             created_at=datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+            method=method,
+            api_url=api_url,
+            task_id=task_id,
         )
+        if hasattr(self.repository, "save_source_request"):
+            return self.repository.save_source_request(request)
         return self.repository.save_crawl_request(request)
 
     def get(self, identity: str) -> CrawlRequest | None:
-        if not identity.startswith("crawl_") or len(identity) != 18:
+        if identity.startswith("crawl_") and len(identity) != 18:
             return None
+        if identity.startswith("api_") and len(identity) != 16:
+            return None
+        if not (identity.startswith("crawl_") or identity.startswith("api_")):
+            return None
+        if hasattr(self.repository, "source_request"):
+            return self.repository.source_request(identity)
         return self.repository.crawl_request(identity)

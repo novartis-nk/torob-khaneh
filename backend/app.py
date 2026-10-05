@@ -16,6 +16,7 @@ from .crawl import CrawlRequestService
 from .housing import HousingSearchService, cluster_offers
 from .ports import ValidationError
 from .repository import SQLiteRepository
+from .postgres import PostgresRepository
 from .travel import TravelSearchService
 
 
@@ -31,7 +32,11 @@ class Application:
     def __init__(self, root: Path = ROOT, database: str | Path | None = None):
         self.root = root
         self.adapters = AdapterRegistry()
-        self.repository = SQLiteRepository(database or os.environ.get("DATABASE_PATH") or root / "data/catalog.sqlite")
+        database_url = os.environ.get("DATABASE_URL")
+        if database_url and database is None:
+            self.repository = PostgresRepository(database_url)
+        else:
+            self.repository = SQLiteRepository(database or root / "data/catalog.sqlite")
         if self.repository.is_empty():
             dataset = json.loads((root / "data/offers.json").read_text())
             self.repository.ingest(dataset, self.adapters)
@@ -61,6 +66,9 @@ class Application:
         if path.startswith("/api/crawl-requests/"):
             request = self.crawls.get(unquote(path.removeprefix("/api/crawl-requests/")))
             return (200, request.as_dict()) if request else (404, {"error": "not_found"})
+        if path.startswith("/api/source-requests/"):
+            request = self.crawls.get(unquote(path.removeprefix("/api/source-requests/")))
+            return (200, request.as_dict()) if request else (404, {"error": "not_found"})
         return 404, {"error": "not_found"}
 
     def post(self, path: str, values: dict[str, Any]) -> tuple[int, dict[str, Any]]:
@@ -70,6 +78,9 @@ class Application:
                 **request.as_dict(),
                 "message": "درخواست ثبت شد و پس از بررسی منبع، آداپتر مناسب به آن اختصاص می‌یابد.",
             }
+        if path == "/api/source-requests":
+            request = self.crawls.submit(values)
+            return 202, {**request.as_dict(), "message": "درخواست منبع ثبت شد؛ مسیر API یا صف خزش بر اساس روش انتخابی ادامه پیدا می‌کند."}
         return 404, {"error": "not_found"}
 
 

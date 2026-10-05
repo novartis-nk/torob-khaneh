@@ -1,6 +1,6 @@
 # ترب خانه + سفر · Torob Khaneh & Safar
 
-A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Python + SQLite, with source normalization, conservative duplicate grouping, explicit budget constraints, explainable ranking and a crawl-source request queue.
+A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Python + PostgreSQL, with source normalization, conservative duplicate grouping, explicit budget constraints, explainable ranking and a two-path website onboarding flow.
 
 The minimal search landing page at `/` has **اجاره و خرید** and **سفر** tabs. Submitting a search opens the selected service with the query or explicit destination/type filters. The housing catalog currently supports rentals, not purchases. Existing housing search links at `/?q=…` continue to work.
 
@@ -28,13 +28,13 @@ npm run build
 npm start
 ```
 
-The Python server binds to `127.0.0.1` by default. In development it runs on port 4318 behind Vite's `/api` proxy; the site remains at port 4317. Set `HOST=0.0.0.0` and `PORT` for a deliberate production deployment. `DATABASE_PATH` overrides the SQLite location. Do not run development and production on the same port simultaneously.
+The Python server binds to `127.0.0.1` by default. In development it runs on port 4318 behind Vite's `/api` proxy; the site remains at port 4317. Set `DATABASE_URL` to PostgreSQL (for example `postgresql://torob:torob_dev@localhost:54329/torob_khaneh`). `docker compose up --build` starts PostgreSQL, the API and the crawl worker together.
 
 The database initializes automatically from `data/offers.json` on first run. The checked-in snapshots run without an API key. Fonts, the Torob logo and selected property images are local; uncached Safar photographs may load from provider CDNs.
 
 ## Requesting a new crawl source
 
-The landing page has a **درخواست افزودن سایت** flow. It sends `POST /api/crawl-requests` with a public website URL, vertical and optional note. The backend validates and canonicalizes the URL, stores an idempotent queued job in SQLite, and returns a tracking ID. `GET /api/crawl-requests/:id` reads its state.
+The landing page has a **درخواست افزودن سایت** flow with two methods. API sources use `POST /api/source-requests` with `method=api` and an API URL; crawl sources use `method=crawl`, create a PostgreSQL `crawl_tasks` row, and are claimed with `FOR UPDATE SKIP LOCKED` by `python -m backend.worker`. The legacy `POST /api/crawl-requests` endpoint remains as a crawl-only alias. Both return a tracking ID.
 
 Submitting a request does not fetch the URL inside the HTTP request. A production worker would claim the queued job only after access rules and source quality are reviewed, then select a registered adapter. This avoids turning a public form into an arbitrary URL fetcher.
 
@@ -102,7 +102,8 @@ backend/ranking.py     pluggable ranking Strategy registry
 backend/housing.py     intent, grouping, eligibility and search service
 backend/travel.py      trip validation and public-catalog search service
 backend/crawl.py       validated crawl-source request application service
-backend/repository.py  SQLite Repository for evidence and crawl jobs
+backend/postgres.py    PostgreSQL Repository for evidence, source requests and crawl tasks
+backend/worker.py      task-worker boundary for queued crawl jobs
 backend/app.py         Python HTTP API and production static serving
 src/                   RTL React interface and responsive styles
 data/offers.json        three authored source formats, fixed observations
