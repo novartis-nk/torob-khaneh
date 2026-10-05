@@ -67,7 +67,13 @@ export default function Landing() {
   const [queries, setQueries] = useState({ housing: '', travel: '' });
   const [about, setAbout] = useState(false);
   const [crawlOpen, setCrawlOpen] = useState(false);
-  const [crawlForm, setCrawlForm] = useState({ url: '', vertical: 'housing', method: 'crawl', apiUrl: '', notes: '' });
+  const [crawlForm, setCrawlForm] = useState({
+    url: '',
+    vertical: 'housing',
+    method: 'crawl',
+    apiUrl: '',
+    notes: '',
+  });
   const [crawlState, setCrawlState] = useState({ status: 'idle', message: '', request: null });
   const input = useRef(null);
   const tabs = useRef([]);
@@ -90,11 +96,14 @@ export default function Landing() {
     event.preventDefault();
     setCrawlState({ status: 'loading', message: '', request: null });
     try {
-      const response = await fetch(crawlForm.method === 'crawl' ? '/api/crawl-requests' : '/api/source-requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(crawlForm),
-      });
+      const response = await fetch(
+        crawlForm.method === 'crawl' ? '/api/crawl-requests' : '/api/source-requests',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(crawlForm),
+        },
+      );
       const result = await response.json();
       if (!response.ok) throw new Error('آدرس سایت معتبر نیست یا درخواست ثبت نشد.');
       setCrawlState({ status: 'success', message: result.message, request: result });
