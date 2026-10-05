@@ -1,6 +1,6 @@
 # ترب خانه + سفر · Torob Khaneh & Safar
 
-A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Node + SQLite, with source normalization, conservative duplicate grouping, explicit budget constraints and explainable ranking.
+A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Python + SQLite, with source normalization, conservative duplicate grouping, explicit budget constraints, explainable ranking and a crawl-source request queue.
 
 The minimal search landing page at `/` has **اجاره و خرید** and **سفر** tabs. Submitting a search opens the selected service with the query or explicit destination/type filters. The housing catalog currently supports rentals, not purchases. Existing housing search links at `/?q=…` continue to work.
 
@@ -13,7 +13,7 @@ This is an independent prototype without official Torob affiliation or a runtime
 
 ## Run
 
-Requires Node **22.13+** (tested with Node 25.2.1) and npm.
+Requires Python **3.11+**, Node **22.13+** and npm. The Python runtime uses only the standard library.
 
 ```sh
 npm ci
@@ -28,9 +28,15 @@ npm run build
 npm start
 ```
 
-The server binds to `127.0.0.1` by default. Set `HOST=0.0.0.0` and `PORT` for a deliberate deployment. `DATABASE_PATH` overrides the SQLite location. Do not run development and production on the same port simultaneously.
+The Python server binds to `127.0.0.1` by default. In development it runs on port 4318 behind Vite's `/api` proxy; the site remains at port 4317. Set `HOST=0.0.0.0` and `PORT` for a deliberate production deployment. `DATABASE_PATH` overrides the SQLite location. Do not run development and production on the same port simultaneously.
 
-The database initializes automatically from `data/offers.json` on first run. Node may print an experimental SQLite warning. The checked-in snapshots run without an API key. Fonts and selected property images are local; uncached Safar photographs may load from provider CDNs.
+The database initializes automatically from `data/offers.json` on first run. The checked-in snapshots run without an API key. Fonts, the Torob logo and selected property images are local; uncached Safar photographs may load from provider CDNs.
+
+## Requesting a new crawl source
+
+The landing page has a **درخواست افزودن سایت** flow. It sends `POST /api/crawl-requests` with a public website URL, vertical and optional note. The backend validates and canonicalizes the URL, stores an idempotent queued job in SQLite, and returns a tracking ID. `GET /api/crawl-requests/:id` reads its state.
+
+Submitting a request does not fetch the URL inside the HTTP request. A production worker would claim the queued job only after access rules and source quality are reviewed, then select a registered adapter. This avoids turning a public form into an arbitrary URL fetcher.
 
 ## Refresh the Safar catalog
 
@@ -63,7 +69,7 @@ This regenerates synthetic observations and upserts the sample records. It is **
 ## Validation
 
 ```sh
-npm test                 # core invariants + persistence
+npm test                 # Python backend invariants + persistence
 npm run test:e2e         # browser flows, mobile, axe accessibility
 npm run build
 ```
@@ -91,14 +97,16 @@ With the app running, `npm run demo` records housing. `npm run demo:safar` recor
 ## Project layout
 
 ```text
-server/engine.mjs      unit normalization, intent, grouping, ranking
-server/safar/          public catalog adapters, trip validation and quote boundary
-server/store.mjs       SQLite ingestion, raw evidence, rejection handling
-server/index.mjs       API, development middleware, production serving
+backend/adapters.py    source Adapter implementations and registry
+backend/ranking.py     pluggable ranking Strategy registry
+backend/housing.py     intent, grouping, eligibility and search service
+backend/travel.py      trip validation and public-catalog search service
+backend/crawl.py       validated crawl-source request application service
+backend/repository.py  SQLite Repository for evidence and crawl jobs
+backend/app.py         Python HTTP API and production static serving
 src/                   RTL React interface and responsive styles
 data/offers.json        three authored source formats, fixed observations
 scripts/seed.mjs        deterministic scenario generation with current clock
-scripts/ingest.mjs      explicit batch ingestion command
 tests/                 invariant tests and browser journeys
 docs/                  decisions, demo script, limits and evidence
 ```

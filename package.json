@@ -7,16 +7,16 @@
     "node": ">=22.13"
   },
   "scripts": {
-    "dev": "node server/index.mjs --dev",
+    "dev": "python3 -m backend.dev",
     "build": "vite build",
-    "start": "node server/index.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "start": "python3 -m backend.app",
+    "test": "python3 -m unittest discover -s tests/python -v",
     "test:e2e": "playwright test",
     "seed": "node scripts/seed.mjs",
     "demo": "node scripts/record-demo.mjs",
-    "ingest": "node scripts/ingest.mjs",
-    "format": "prettier --write src server scripts tests *.mjs *.json",
-    "check:format": "prettier --check src server scripts tests *.mjs *.json",
+    "ingest": "python3 -m backend.ingest",
+    "format": "prettier --write src scripts tests/browser *.mjs *.json",
+    "check:format": "prettier --check src scripts tests/browser *.mjs *.json && python3 -m py_compile backend/*.py tests/python/*.py",
     "safar:refresh": "node scripts/refresh-safar.mjs",
     "demo:safar": "node scripts/record-safar-demo.mjs"
   },

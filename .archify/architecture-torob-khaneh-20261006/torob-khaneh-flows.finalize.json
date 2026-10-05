@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "architecture",
+  "quality": "showcase",
+  "startedAt": "2026-10-05T22:22:13.095Z",
+  "specification": {
+    "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
+    "sha256": "9e50ad4e902eb99101d9ea7b215dfcf50ac8cb31a19edf9a9da57a6da2e0e9bb",
+    "bytes": 6539
+  },
+  "artifact": {
+    "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html"
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/opt/homebrew/Cellar/node/25.2.1/bin/node",
+        "/Users/novartis/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "architecture",
+        "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
+        "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "/Users/novartis/Novartis/work/torob-khaneh",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "3da114dc-3cde-4d2a-ab2e-7889bc31ad25",
+        "stage": "render",
+        "type": "architecture",
+        "input": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
+        "output": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
+        "error": "/components/1/sources/0/path does not identify a file at revision 762b48f316d8d4bf91ff605d62f88bd474e97227.",
+        "diagnostics": [
+          {
+            "code": "repository-evidence/file-missing",
+            "severity": "error",
+            "message": "/components/1/sources/0/path does not identify a file at revision 762b48f316d8d4bf91ff605d62f88bd474e97227.",
+            "subject": {
+              "surface": "repository-evidence",
+              "path": "/components/1/sources/0/path",
+              "diagramType": "architecture",
+              "collection": "components",
+              "nodeId": "api",
+              "componentId": "api"
+            },
+            "evidence": {
+              "sourcePath": "backend/app.py",
+              "revision": "762b48f316d8d4bf91ff605d62f88bd474e97227"
+            },
+            "supportedFixes": [
+              "use a file path that exists at the pinned revision"
+            ]
+          }
+        ],
+        "provenance": "absent",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "diagnostics": [
+    {
+      "code": "repository-evidence/file-missing",
+      "severity": "error",
+      "message": "/components/1/sources/0/path does not identify a file at revision 762b48f316d8d4bf91ff605d62f88bd474e97227.",
+      "subject": {
+        "surface": "repository-evidence",
+        "path": "/components/1/sources/0/path",
+        "diagramType": "architecture",
+        "collection": "components",
+        "nodeId": "api",
+        "componentId": "api"
+      },
+      "evidence": {
+        "sourcePath": "backend/app.py",
+        "revision": "762b48f316d8d4bf91ff605d62f88bd474e97227"
+      },
+      "supportedFixes": [
+        "use a file path that exists at the pinned revision"
+      ]
+    }
+  ],
+  "evidence": {
+    "receipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.finalize.json",
+    "summaryReceipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-10-05T22:22:13.446Z",
+  "durationMs": 351,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.0.1",
+    "availableVersion": "3.0.1",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-05T13:23:10.100Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Torob Khaneh · Search, Crawl Request & Pricing Flows",
+    "subtitle": "Current local architecture: React → Python API → services → SQLite",
+    "output": ".archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "git@localhost:torob-khaneh.git",
+      "link_mode": "local-only",
+      "revision": "762b48f316d8d4bf91ff605d62f88bd474e97227"
+    },
+    "legend": {
+      "mode": "all",
+      "entries": {
+        "frontend": { "label": "Frontend" },
+        "backend": { "label": "Python service" },
+        "database": { "label": "Persistence" },
+        "external": { "label": "Input / snapshot" }
+      }
+    }
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "frontend",
+      "label": "React web app",
+      "sublabel": "Landing, Khaneh & Safar",
+      "tag": "RTL UI",
+      "icon": "frontend",
+      "pos": [40, 300],
+      "size": [170, 72],
+      "sources": [{ "path": "src/landing/Landing.jsx", "line": 106, "end_line": 200, "label": "search entry + crawl CTA" }]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "Python HTTP API",
+      "sublabel": "ThreadingHTTPServer · /api",
+      "tag": "request boundary",
+      "icon": "backend",
+      "pos": [280, 300],
+      "size": [180, 72],
+      "sources": [{ "path": "backend/app.py", "line": 30, "end_line": 73, "label": "routes + services" }]
+    },
+    {
+      "id": "housing",
+      "type": "backend",
+      "label": "Housing search",
+      "sublabel": "intent · eligibility · grouping",
+      "tag": "hard filters first",
+      "icon": "backend",
+      "pos": [540, 110],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/housing.py", "line": 155, "end_line": 243, "label": "search service" }]
+    },
+    {
+      "id": "crawl",
+      "type": "backend",
+      "label": "Crawl request service",
+      "sublabel": "validate · canonicalize · queue",
+      "tag": "HTTP 202",
+      "icon": "clock",
+      "pos": [540, 300],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/crawl.py", "line": 13, "end_line": 55, "label": "queued source request" }]
+    },
+    {
+      "id": "travel",
+      "type": "backend",
+      "label": "Travel search",
+      "sublabel": "dates · guests · starting prices",
+      "tag": "quote boundary",
+      "icon": "backend",
+      "pos": [540, 490],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/travel.py", "line": 92, "end_line": 206, "label": "Safar search" }]
+    },
+    {
+      "id": "adapters",
+      "type": "backend",
+      "label": "Adapter registry",
+      "sublabel": "direct · agency · portal",
+      "tag": "add websites here",
+      "icon": "backend",
+      "pos": [800, 30],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/adapters.py", "line": 186, "end_line": 201, "label": "adapter factory" }]
+    },
+    {
+      "id": "ranking",
+      "type": "backend",
+      "label": "Ranking registry",
+      "sublabel": "recommended · rent · deposit · metro",
+      "tag": "strategy plug-ins",
+      "icon": "backend",
+      "pos": [800, 200],
+      "size": [210, 72],
+      "sources": [{ "path": "backend/ranking.py", "line": 20, "end_line": 39, "label": "ranking strategies" }]
+    },
+    {
+      "id": "repository",
+      "type": "backend",
+      "label": "SQLite repository",
+      "sublabel": "raw · normalized · crawl jobs",
+      "tag": "Repository pattern",
+      "icon": "database",
+      "pos": [800, 420],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/repository.py", "line": 13, "end_line": 41, "label": "persistence tables" }]
+    },
+    {
+      "id": "snapshots",
+      "type": "external",
+      "label": "Catalog snapshots",
+      "sublabel": "data/offers.json + Safar JSON",
+      "tag": "local fixtures",
+      "icon": "external",
+      "pos": [800, 600],
+      "size": [190, 72],
+      "sources": [{ "path": "backend/app.py", "line": 35, "end_line": 57, "label": "fixture loading" }]
+    }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Browser runtime", "wraps": ["browser"] },
+    { "kind": "region", "label": "Python application runtime", "wraps": ["api", "housing", "crawl", "travel", "adapters", "ranking", "repository"] }
+  ],
+  "connections": [
+    { "id": "browser-api", "from": "browser", "to": "api", "label": "HTTP /api", "variant": "emphasis" },
+    { "id": "api-housing", "from": "api", "to": "housing", "label": "GET /api/search", "fromSide": "right", "toSide": "left" },
+    { "id": "api-crawl", "from": "api", "to": "crawl", "label": "POST /api/crawl-requests", "fromSide": "right", "toSide": "left" },
+    { "id": "api-travel", "from": "api", "to": "travel", "label": "GET /api/safar/search", "fromSide": "right", "toSide": "left" },
+    { "id": "housing-ranking", "from": "housing", "to": "ranking", "label": "eligible homes", "variant": "emphasis" },
+    { "id": "housing-repository", "from": "housing", "to": "repository", "label": "read observations", "fromSide": "right", "toSide": "left", "route": "orthogonal-v" },
+    { "id": "crawl-repository", "from": "crawl", "to": "repository", "label": "INSERT queued job", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read Safar catalog", "fromSide": "right", "toSide": "left", "route": "orthogonal-v" },
+    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "snapshots-adapters", "from": "snapshots", "to": "adapters", "label": "housing batch input", "variant": "dashed", "fromSide": "top", "toSide": "bottom", "route": "orthogonal-v" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Search flow", "items": ["React sends structured search to Python", "Housing applies intent, freshness and paired budget filters", "Ranking strategies order only eligible homes"] },
+    { "dot": "amber", "title": "Source onboarding", "items": ["The UI submits a public URL and vertical", "The API validates and canonicalizes it", "SQLite stores an idempotent queued request; a worker is a future step"] },
+    { "dot": "violet", "title": "Pricing guarantees", "items": ["Deposit and rent remain separate source values", "Effective cost can weight deposit for comparison", "Starting nightly prices are never presented as confirmed trip totals"] }
+  ]
+}

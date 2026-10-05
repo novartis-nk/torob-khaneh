@@ -36,7 +36,8 @@ A conventional listing feed makes the user reconcile entries. This prototype mov
 
 ## Current implementation
 
-- React frontend; Node HTTP API; SQLite persistence.
+- React frontend; Python HTTP API; SQLite persistence.
+- A public source-request flow queues websites for adapter review and returns a tracking ID; it does not perform arbitrary URL fetching in the request path.
 - 28 authored raw records in three source schemas. One non-numeric price is quarantined; 27 valid observations form 14 distinct homes. One home has only stale offers, leaving 13 searchable homes at generation time.
 - Persian/Arabic digits, Persian letter variants, explicit rial/toman conversion, millions and billions.
 - Conservative duplicate grouping; same-size, same-photo apartments on different floors stay separate.
@@ -79,7 +80,7 @@ The sample sources do not impersonate existing listing platforms. Raw input is a
 
 ## What we deliberately deferred
 
-Payments, property booking, messaging owners, automated alerts, nationwide coverage, real routing, a live crawler and a deployed LLM. Each would add a dependency or claim that the current evidence cannot support. The prototype already demonstrates the core decision loop without pretending those capabilities exist.
+Payments, property booking, messaging owners, automated alerts, nationwide coverage, real routing, an automatic crawl worker and a deployed LLM. Each would add a dependency or claim that the current evidence cannot support. The prototype accepts crawl-source requests and models the adapter boundary, while leaving access review and scheduled collection to an explicit worker stage.
 
 ## AI use and honesty
 

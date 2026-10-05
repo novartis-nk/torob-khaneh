@@ -1,7 +1,18 @@
 import { load } from 'cheerio';
-import { digits, normalizeText } from '../engine.mjs';
-import { PROVIDERS } from './providers.mjs';
-export { PROVIDERS } from './providers.mjs';
+import { PROVIDERS } from './safar-providers.mjs';
+export { PROVIDERS } from './safar-providers.mjs';
+const digits = (value) =>
+  String(value ?? '')
+    .replace(/[۰-۹]/g, (n) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(n))
+    .replace(/[٠-٩]/g, (n) => '٠١٢٣٤٥٦٧٨٩'.indexOf(n));
+const normalizeText = (value) =>
+  digits(value)
+    .toLowerCase()
+    .replace(/ي/g, 'ی')
+    .replace(/ك/g, 'ک')
+    .replace(/[\u200c\u200f\u200e]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 const integer = (value) => {
   if (value == null || String(value).trim() === '') return null;
   const n = Number(digits(value).replace(/[,٬\s]/g, ''));

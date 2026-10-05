@@ -10,6 +10,7 @@ test('the first page is a search entry point without fetching result catalogs', 
   });
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'ترب', exact: true })).toBeVisible();
+  await expect(page.locator('.landing-wordmark img')).toHaveAttribute('src', '/torob-logo.svg');
   await expect(page.getByRole('tab', { name: 'اجاره و خرید', exact: true })).toHaveAttribute(
     'aria-selected',
     'true',
@@ -17,6 +18,21 @@ test('the first page is a search entry point without fetching result catalogs', 
   await expect(page.locator('.home-card, .sf-card')).toHaveCount(0);
   await expect(page.getByRole('searchbox', { name: 'جست‌وجوی خانه' })).toBeVisible();
   expect(apiRequests).toEqual([]);
+});
+test('a crawl source request is queued and returns a tracking id', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'درخواست افزودن سایت' }).click();
+  await page.getByLabel('آدرس سایت').fill('https://example.com/listings');
+  await page.getByLabel('نوع داده').selectOption('travel');
+  await page.getByLabel('توضیح کوتاه اختیاری').fill('صفحهٔ عمومی اقامتگاه‌ها');
+  const response = page.waitForResponse(
+    (candidate) =>
+      candidate.url().endsWith('/api/crawl-requests') && candidate.request().method() === 'POST',
+  );
+  await page.getByRole('button', { name: 'ثبت درخواست بررسی' }).click();
+  expect((await response).status()).toBe(202);
+  await expect(page.getByRole('heading', { name: 'درخواست در صف بررسی است' })).toBeVisible();
+  await expect(page.getByText(/^crawl_[a-f0-9]{12}$/)).toBeVisible();
 });
 test('a housing search opens the existing housing results with its query', async ({ page }) => {
   await page.goto('/');

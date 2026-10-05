@@ -4,9 +4,23 @@ This document describes the housing implementation. For the separately implement
 
 ## Data path
 
-`three raw fixture schemas → strict normalization → SQLite raw + normalized observations → complete-link grouping → hard eligibility filters → offer selection → deterministic ranking → UI evidence`
+`website/schema adapters → strict normalization → SQLite raw + normalized observations → complete-link grouping → hard eligibility filters → offer selection → ranking strategy → UI evidence`
 
-The app has a real local backend and database. Ingestion runs as an explicit local batch command, not an unauthenticated write endpoint. No live crawling is implemented. Calling a fixture a crawl would misrepresent the demonstration.
+The runtime backend is Python and uses only the standard library. React is compiled to static assets; Vite proxies `/api` to Python during development, and Python serves `dist/` in production. SQLite holds raw observations, normalized observations, rejected records and crawl-source requests.
+
+Ingestion runs as an explicit local batch command. The public crawl-request endpoint queues a source for review; it does not fetch the submitted URL. The existing Safar refresh command is an explicit offline snapshot tool. Calling either the housing fixture or a queued request a completed crawl would misrepresent the demonstration.
+
+## Extensibility patterns
+
+The backend separates source-specific behavior from comparison logic:
+
+- **Adapter + Registry:** `OfferAdapter` converts one website/schema into the canonical offer model. `AdapterRegistry` selects it from the schema key. Adding a source means adding and registering an adapter; the repository and HTTP handler stay unchanged.
+- **Strategy + Registry:** each `RankingStrategy` orders already-eligible homes. The registry currently exposes recommended, rent, deposit, newest and metro strategies. A learned or experiment-specific ranker can be registered behind the same contract.
+- **Repository:** `SQLiteRepository` owns persistence. Search and crawl services do not contain SQL, so a production PostgreSQL implementation can replace SQLite without changing API behavior.
+- **Application services:** housing search, travel search and crawl requests own use-case rules. The HTTP layer only parses requests, maps validation failures and serializes responses.
+- **Dependency direction:** the protocols in `backend/ports.py` are the stable boundary. Adapters and persistence depend on those contracts; UI and HTTP code do not depend on individual websites.
+
+For many websites, the next operational layer is a durable worker queue with per-domain concurrency and rate limits, authorization/robots policy, retries with a dead-letter queue, adapter versioning, observation idempotency, source health metrics and a manual review path. The queued request already carries the source URL, vertical, status and eventual `adapterKey` needed by that workflow.
 
 ## API
 
@@ -14,6 +28,8 @@ The app has a real local backend and database. Ingestion runs as an explicit loc
 - `GET /api/catalog`: source counts, rejection count, neighborhoods, fixture timestamp.
 - `GET /api/search?q=...&maxDeposit=600&maxRent=20&rate=1`: structured inputs override extracted intent; price filters are in millions of toman. Unknown/invalid supported filter values return 400. All amounts in returned offers are integer toman.
 - `GET /api/source/:id`: raw and normalized sample observation.
+- `POST /api/crawl-requests`: validate and queue `{url, vertical, notes}`; returns HTTP 202 and a tracking ID.
+- `GET /api/crawl-requests/:id`: inspect the queued request state.
 
 Search responses contain selected source offers, all source observations, staleness and eligibility flags, score components and evidence. Query length is bounded. Database queries are parameterized. Raw evidence is rendered as escaped text by React. Static serving is constrained to the build directory. No secrets are sent to the client.
 
@@ -25,7 +41,7 @@ Limitations: exact field equality under-merges; fingerprints are authored fixtur
 
 ## Ranking
 
-Hard filters run before ranking. An offer must simultaneously meet both price ceilings and be no more than 72 hours old. Unknown required amenities do not pass. Known false and unknown remain distinct. The selected offer minimizes the adjustable comparison cost. Alternative sorting acts on selected offers rather than silently changing the source combination. Ties use stable IDs.
+Hard filters run before ranking. An offer must simultaneously meet both price ceilings and be no more than 72 hours old. Unknown required amenities do not pass. Known false and unknown remain distinct. The selected offer minimizes the adjustable comparison cost. Alternative ranking strategies act on selected offers rather than silently changing the source combination. Ties use stable IDs. API responses name the active algorithm, for example `recommended-v1` or `rent-v1`.
 
 Original source prices are never mutated when the user's comparison weight changes. Source dates are persisted, not recalculated on every read. Saved homes and saved searches are browser-local and need no account. A saved home's absence from results may reflect current filters or staleness.
 
@@ -35,7 +51,7 @@ Original source prices are never mutated when the user's comparison weight chang
 
 ## Operational boundary
 
-This is a single-process local application with small-data clustering; the complete-link implementation is quadratic/cubic in the worst case and is intentionally not a scale claim. Production work includes indexed candidate generation, authorized source adapters, incremental ingestion, source deletion/expiry, scheduled refresh, observability, rate limiting, route calculation, privacy review and real data evaluation. Do not deploy the Vite development middleware publicly.
+This is a single-process local application with small-data clustering; the complete-link implementation is quadratic/cubic in the worst case and is intentionally not a scale claim. At larger scale, blocking keys and an indexed candidate service should generate a small set of possible matches before the conservative complete-link check. Production work also includes authorized source adapters, incremental ingestion, source deletion/expiry, scheduled refresh, observability, rate limiting, route calculation, privacy review and real data evaluation. Do not deploy the Vite development server publicly.
 
 The sample-source JSON endpoint contains no real personal information. App URLs contain search constraints, so shared links disclose those constraints. No third-party analytics, identity provider or background notification is installed.
 
@@ -45,4 +61,4 @@ Unit tests target monetary correctness, future/stale observations, false merges,
 
 ## Container packaging
 
-A two-stage Dockerfile is supplied. The runtime serves the built assets using Node's standard library and SQLite, so it does not need the build-time dependency tree. The container is configured to run as the non-root `node` user. Container packaging is provided for convenience; it has not been built or deployed in this session. Runtime SQLite should use a mounted writable volume for a persistent deployment.
+A two-stage Dockerfile is supplied. Node builds the React assets; the final Python image serves the API and static files without the npm dependency tree. The container runs as a non-root `app` user and stores SQLite at `/data/catalog.sqlite`. Mount `/data` for persistence.

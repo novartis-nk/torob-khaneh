@@ -49,7 +49,7 @@ Each adapter normalizes a source page to `data/safar-catalog.json`. On a provide
 
 Image URLs are restricted to known provider CDNs; locally cached photos remain attributed to their sources. Other photos may load from those CDNs. Jabama installment amounts and decorative icons are explicitly excluded from the nightly-price/photo extraction. Missing prices are rejected, never converted to zero.
 
-The server only needs built-in Node modules at runtime; Cheerio and Playwright are used by the refresh tooling. Docker copies the snapshot and bundled images through the Vite build. It does not scrape at startup. The container itself has not been built in this environment.
+The server only needs Python's standard library at runtime; Cheerio and Playwright are used by the explicit Node-based refresh tooling. Docker copies the snapshot and bundled images through the Vite build. It does not scrape at startup.
 
 ## Evidence and next steps
 

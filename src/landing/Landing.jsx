@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, X, House, Compass } from 'lucide-react';
+import { Search, X, House, Compass, Globe2, Send, CircleCheck } from 'lucide-react';
 import { Icon, Modal } from '../components';
 import './landing.css';
 const SERVICES = {
@@ -66,6 +66,9 @@ export default function Landing() {
   const [service, setService] = useState('housing');
   const [queries, setQueries] = useState({ housing: '', travel: '' });
   const [about, setAbout] = useState(false);
+  const [crawlOpen, setCrawlOpen] = useState(false);
+  const [crawlForm, setCrawlForm] = useState({ url: '', vertical: 'housing', notes: '' });
+  const [crawlState, setCrawlState] = useState({ status: 'idle', message: '', request: null });
   const input = useRef(null);
   const tabs = useRef([]);
   const current = SERVICES[service];
@@ -83,15 +86,37 @@ export default function Landing() {
     setService(Object.keys(SERVICES)[next]);
     tabs.current[next]?.focus();
   }
+  async function requestCrawl(event) {
+    event.preventDefault();
+    setCrawlState({ status: 'loading', message: '', request: null });
+    try {
+      const response = await fetch('/api/crawl-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(crawlForm),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error('آدرس سایت معتبر نیست یا درخواست ثبت نشد.');
+      setCrawlState({ status: 'success', message: result.message, request: result });
+    } catch (error) {
+      setCrawlState({ status: 'error', message: error.message, request: null });
+    }
+  }
   return (
     <div className="landing">
       <header className="landing-header">
         <span>خانه و سفر</span>
-        <button onClick={() => setAbout(true)}>دربارهٔ این تجربه</button>
+        <div>
+          <button onClick={() => setCrawlOpen(true)}>درخواست افزودن سایت</button>
+          <button onClick={() => setAbout(true)}>دربارهٔ این تجربه</button>
+        </div>
       </header>
       <main className="landing-main">
         <section className="landing-search" aria-label="جست‌وجوی خانه و سفر">
-          <h1 className="landing-wordmark">ترب</h1>
+          <h1 className="landing-wordmark" aria-label="ترب">
+            <img src="/torob-logo.svg" alt="" />
+            <span>ترب</span>
+          </h1>
           <p className="landing-tagline">یک جست‌وجو، انتخاب‌های بیشتر</p>
           <div className="landing-tabs" role="tablist" aria-label="چه چیزی می‌خواهی پیدا کنی؟">
             {Object.entries(SERVICES).map(([id, config], i) => (
@@ -173,6 +198,10 @@ export default function Landing() {
               دیدن همهٔ اقامتگاه‌ها
             </a>
           </nav>
+          <button className="landing-crawl-link" onClick={() => setCrawlOpen(true)}>
+            <Icon name={Globe2} size={16} />
+            سایت خانه یا سفر شما اینجا نیست؟ درخواست بررسی بدهید
+          </button>
         </section>
       </main>
       <footer className="landing-footer">
@@ -193,6 +222,84 @@ export default function Landing() {
             </p>
             <p>این پروژه نمونه‌ای مستقل برای چالش محصول ترب است.</p>
           </div>
+        </Modal>
+      )}
+      {crawlOpen && (
+        <Modal
+          title="درخواست بررسی یک سایت"
+          onClose={() => {
+            setCrawlOpen(false);
+            setCrawlState({ status: 'idle', message: '', request: null });
+          }}
+        >
+          {crawlState.status === 'success' ? (
+            <div className="landing-crawl-success" aria-live="polite">
+              <Icon name={CircleCheck} size={38} />
+              <h3>درخواست در صف بررسی است</h3>
+              <p>{crawlState.message}</p>
+              <dl>
+                <div>
+                  <dt>شناسهٔ پیگیری</dt>
+                  <dd dir="ltr">{crawlState.request.id}</dd>
+                </div>
+                <div>
+                  <dt>دامنه</dt>
+                  <dd dir="ltr">{crawlState.request.domain}</dd>
+                </div>
+              </dl>
+              <button className="primary" onClick={() => setCrawlOpen(false)}>
+                متوجه شدم
+              </button>
+            </div>
+          ) : (
+            <form className="landing-crawl-form" onSubmit={requestCrawl}>
+              <p>
+                آدرس یک سایت عمومی را بفرستید. درخواست ذخیره می‌شود تا قوانین دسترسی، کیفیت داده و
+                آداپتر آن منبع بررسی شود؛ ثبت درخواست به معنی شروع فوری خزش نیست.
+              </p>
+              <label>
+                آدرس سایت
+                <input
+                  required
+                  type="url"
+                  inputMode="url"
+                  dir="ltr"
+                  placeholder="https://example.com/listings"
+                  value={crawlForm.url}
+                  onChange={(event) => setCrawlForm({ ...crawlForm, url: event.target.value })}
+                />
+              </label>
+              <label>
+                نوع داده
+                <select
+                  value={crawlForm.vertical}
+                  onChange={(event) => setCrawlForm({ ...crawlForm, vertical: event.target.value })}
+                >
+                  <option value="housing">خانه و ملک</option>
+                  <option value="travel">اقامتگاه و سفر</option>
+                </select>
+              </label>
+              <label>
+                توضیح کوتاه <span>اختیاری</span>
+                <textarea
+                  maxLength={500}
+                  rows={3}
+                  placeholder="مثلاً صفحهٔ عمومی نتایج یا نکته‌ای دربارهٔ قیمت‌ها"
+                  value={crawlForm.notes}
+                  onChange={(event) => setCrawlForm({ ...crawlForm, notes: event.target.value })}
+                />
+              </label>
+              {crawlState.status === 'error' && (
+                <p className="landing-crawl-error" role="alert">
+                  {crawlState.message}
+                </p>
+              )}
+              <button className="primary" disabled={crawlState.status === 'loading'}>
+                <Icon name={Send} size={17} />
+                {crawlState.status === 'loading' ? 'در حال ثبت…' : 'ثبت درخواست بررسی'}
+              </button>
+            </form>
+          )}
         </Modal>
       )}
     </div>

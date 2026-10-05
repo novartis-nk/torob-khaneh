@@ -3,7 +3,7 @@ import { writeFileSync, readFileSync, existsSync, mkdirSync, renameSync } from '
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { PROVIDERS, parseCatalog } from '../server/safar/adapters.mjs';
+import { PROVIDERS, parseCatalog } from './safar-adapters.mjs';
 const run = promisify(execFile),
   root = fileURLToPath(new URL('../', import.meta.url));
 const file = `${root}/data/safar-catalog.json`;
