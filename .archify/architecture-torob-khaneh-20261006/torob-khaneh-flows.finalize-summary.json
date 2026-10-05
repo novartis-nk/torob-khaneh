@@ -1,55 +1,36 @@
 {
   "schemaVersion": 1,
-  "ok": false,
+  "ok": true,
   "command": "finalize",
-  "status": "fail",
+  "status": "pass",
   "type": "architecture",
   "quality": "showcase",
   "specification": {
     "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
-    "sha256": "9e50ad4e902eb99101d9ea7b215dfcf50ac8cb31a19edf9a9da57a6da2e0e9bb",
-    "bytes": 6539
+    "sha256": "af29066e2df3de65c8e9b6a04c09ea2ee1326abd4ffaac1bb6bd867c5c168ab8",
+    "bytes": 6154
   },
   "artifact": {
-    "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html"
+    "path": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
+    "sha256": "938ca3f1fef73efde656ab0d25e201dd250a8ea786402b28325fea4947f137f0",
+    "bytes": 768858
   },
   "gates": {
-    "validate": "fail",
-    "deliver": "not-run",
-    "check": "not-run",
-    "browser-check": "not-run"
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
   },
-  "failedStage": "validate",
-  "diagnostics": [
-    {
-      "code": "repository-evidence/file-missing",
-      "severity": "error",
-      "message": "/components/1/sources/0/path does not identify a file at revision 762b48f316d8d4bf91ff605d62f88bd474e97227.",
-      "subject": {
-        "surface": "repository-evidence",
-        "path": "/components/1/sources/0/path",
-        "diagramType": "architecture",
-        "collection": "components",
-        "nodeId": "api",
-        "componentId": "api"
-      },
-      "evidence": {
-        "sourcePath": "backend/app.py",
-        "revision": "762b48f316d8d4bf91ff605d62f88bd474e97227"
-      },
-      "supportedFixes": [
-        "use a file path that exists at the pinned revision"
-      ]
-    }
-  ],
+  "diagnostics": [],
   "diagnosticSummary": {
-    "total": 1,
-    "shown": 1,
+    "total": 0,
+    "shown": 0,
     "truncated": false
   },
   "evidence": {
     "receipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.finalize.json",
-    "summaryReceipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.finalize-summary.json"
+    "summaryReceipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.finalize-summary.json",
+    "browserCheckReceipt": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.browser-check.json"
   },
   "update": {
     "status": "current",
@@ -62,11 +43,5 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 351,
-  "nextAction": {
-    "action": "edit-in-place",
-    "candidate": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
-    "constraint": "Preserve all semantics and user-fixed geometry. Use references/architecture-layout-repair.md to choose a local repair or connected-scene reflow; edit the existing candidate.",
-    "then": "finalize-once"
-  }
+  "durationMs": 1628
 }

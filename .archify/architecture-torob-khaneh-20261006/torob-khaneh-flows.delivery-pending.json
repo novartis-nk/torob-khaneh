@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "command": "deliver",
-  "status": "pending",
-  "receiptId": "3da114dc-3cde-4d2a-ab2e-7889bc31ad25",
-  "input": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/candidate.json",
-  "output": "/Users/novartis/Novartis/work/torob-khaneh/.archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html"
-}

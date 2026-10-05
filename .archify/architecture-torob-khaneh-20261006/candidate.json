@@ -9,7 +9,7 @@
     "repository": {
       "url": "git@localhost:torob-khaneh.git",
       "link_mode": "local-only",
-      "revision": "762b48f316d8d4bf91ff605d62f88bd474e97227"
+      "revision": "3757205b565d76f0a1308b4960cd748cf01493e9"
     },
     "legend": {
       "mode": "all",
@@ -62,7 +62,7 @@
       "sublabel": "validate · canonicalize · queue",
       "tag": "HTTP 202",
       "icon": "clock",
-      "pos": [540, 300],
+      "pos": [640, 300],
       "size": [190, 72],
       "sources": [{ "path": "backend/crawl.py", "line": 13, "end_line": 55, "label": "queued source request" }]
     },
@@ -75,7 +75,7 @@
       "icon": "backend",
       "pos": [540, 490],
       "size": [190, 72],
-      "sources": [{ "path": "backend/travel.py", "line": 92, "end_line": 206, "label": "Safar search" }]
+      "sources": [{ "path": "backend/travel.py", "line": 92, "end_line": 182, "label": "Safar search" }]
     },
     {
       "id": "adapters",
@@ -84,7 +84,7 @@
       "sublabel": "direct · agency · portal",
       "tag": "add websites here",
       "icon": "backend",
-      "pos": [800, 30],
+      "pos": [1080, 30],
       "size": [190, 72],
       "sources": [{ "path": "backend/adapters.py", "line": 186, "end_line": 201, "label": "adapter factory" }]
     },
@@ -117,7 +117,7 @@
       "sublabel": "data/offers.json + Safar JSON",
       "tag": "local fixtures",
       "icon": "external",
-      "pos": [800, 600],
+      "pos": [1080, 600],
       "size": [190, 72],
       "sources": [{ "path": "backend/app.py", "line": 35, "end_line": 57, "label": "fixture loading" }]
     }
@@ -128,15 +128,15 @@
   ],
   "connections": [
     { "id": "browser-api", "from": "browser", "to": "api", "label": "HTTP /api", "variant": "emphasis" },
-    { "id": "api-housing", "from": "api", "to": "housing", "label": "GET /api/search", "fromSide": "right", "toSide": "left" },
-    { "id": "api-crawl", "from": "api", "to": "crawl", "label": "POST /api/crawl-requests", "fromSide": "right", "toSide": "left" },
-    { "id": "api-travel", "from": "api", "to": "travel", "label": "GET /api/safar/search", "fromSide": "right", "toSide": "left" },
+    { "id": "api-housing", "from": "api", "to": "housing", "label": "GET /api/search" },
+    { "id": "api-crawl", "from": "api", "to": "crawl", "label": "POST /api/crawl-requests" },
+    { "id": "api-travel", "from": "api", "to": "travel", "label": "GET /api/safar/search" },
     { "id": "housing-ranking", "from": "housing", "to": "ranking", "label": "eligible homes", "variant": "emphasis" },
-    { "id": "housing-repository", "from": "housing", "to": "repository", "label": "read observations", "fromSide": "right", "toSide": "left", "route": "orthogonal-v" },
-    { "id": "crawl-repository", "from": "crawl", "to": "repository", "label": "INSERT queued job", "variant": "dashed", "fromSide": "right", "toSide": "left" },
-    { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read Safar catalog", "fromSide": "right", "toSide": "left", "route": "orthogonal-v" },
-    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
-    { "id": "snapshots-adapters", "from": "snapshots", "to": "adapters", "label": "housing batch input", "variant": "dashed", "fromSide": "top", "toSide": "bottom", "route": "orthogonal-v" }
+    { "id": "housing-repository", "from": "housing", "to": "repository", "label": "read observations" },
+    { "id": "crawl-repository", "from": "crawl", "to": "repository", "label": "INSERT queued job", "variant": "dashed" },
+    { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read Safar catalog" },
+    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed" },
+    { "id": "snapshots-adapters", "from": "snapshots", "to": "adapters", "label": "housing batch input", "variant": "dashed" }
   ],
   "cards": [
     { "dot": "cyan", "title": "Search flow", "items": ["React sends structured search to Python", "Housing applies intent, freshness and paired budget filters", "Ranking strategies order only eligible homes"] },
