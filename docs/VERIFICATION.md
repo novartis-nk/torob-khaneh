@@ -1,18 +1,23 @@
 # Verification — October 5, 2026
 
-Verified on Node 25.2.1 and installed Google Chrome.
+Verified on Node 25.2.1 and installed Google Chrome. Scope: housing plus Safar.
 
 | Check | Result |
 |---|---|
-| `npm test` | 24 tests passed |
-| `npm run test:e2e` | 14 browser tests passed |
+| `npm test` | 34 tests passed |
+| `npm run test:e2e` | 25 browser tests passed |
 | `npm run build` | Vite production build passed |
 | `npm run check:format` | All checked files formatted |
-| Production server smoke | 13 results rendered; no browser errors; invalid negative budget returned HTTP 400 |
-| Mobile viewport | 390 × 844; no horizontal overflow; filters and empty-state recovery work |
-| Automated accessibility | No serious/critical axe violations in tested desktop, property dialog, nested source dialog and mobile filter states |
-| Video export | H.264 MP4, 1280 × 900, 201.08 seconds, 4,276,913 bytes; silent with Persian captions |
+| Production smoke | Housing: 13 results. Safar: 72 results for four adults from 75 catalog listings. No browser errors. |
+| API validation | Malformed trip dates and unknown provider returned HTTP 400 |
+| Production image serving | WebP content type verified; catalog images rendered |
+| Mobile | No document overflow at 390 × 844 or 320 × 720 in either service; travel filters and calendar work |
+| Automated accessibility | No serious/critical axe violations in tested housing, nested source, mobile filters, Safar, date picker and travel detail states |
+| Keyboard | Dialog dismissal restores focus; existing housing keyboard tabs pass |
+| Combined demo | H.264 MP4, 1280 × 900, 278.56 seconds (4:39), 4,731,411 bytes; silent with Persian captions |
 
-Screenshots and selected video frames were visually reviewed. Core tests include normalization, stale-price exclusion, false-merge prevention, paired budget constraints, score reconciliation and SQLite ingestion. Browser tests cover Persian queries, editable filters, bookmarks, saved searches, comparison, source evidence, keyboard tabs, mobile, map overview and request recovery.
+Screenshots and a combined-video Safar frame were visually reviewed. Housing tests cover normalization, stale-price exclusion, false-merge prevention, paired budget constraints, score reconciliation and SQLite ingestion. Safar tests cover Persian calendar boundaries, Tehran date validation, guest composition, quote expiry/completeness, source parsing, installment-vs-nightly prices, decorative-vs-property images, allowed source URLs and non-merging of similar listings.
 
-Limits: no live data access, real user study, production load test, real identity-matching evaluation or container build was performed. The video was recorded just before final accessibility-label and keyboard polish; the demonstrated business behavior is unchanged. Automated accessibility checks are not a complete accessibility certification.
+Browser tests exercise both services, shortlist persistence, shared trip/compare restoration, calendar and guest changes, confirmed-total filtering, request failure/retry, malformed shared links, mobile filters and accessibility. Source refresh successfully retrieved 36 Jabama, 24 Otaghak and 15 Jajiga records. Earlier refresh failures retained prior timestamps rather than claiming fresh observations.
+
+Limits: Safar observations are public catalog snapshots, not live trip quotes. No booking, partner API integration, real user study, production load test, cross-platform unit-identity evaluation or container build was performed. The original housing video is unchanged; the combined video adds Safar. Automated checks are not a complete accessibility certification.

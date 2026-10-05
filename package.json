@@ -16,9 +16,12 @@
     "demo": "node scripts/record-demo.mjs",
     "ingest": "node scripts/ingest.mjs",
     "format": "prettier --write src server scripts tests *.mjs *.json",
-    "check:format": "prettier --check src server scripts tests *.mjs *.json"
+    "check:format": "prettier --check src server scripts tests *.mjs *.json",
+    "safar:refresh": "node scripts/refresh-safar.mjs",
+    "demo:safar": "node scripts/record-safar-demo.mjs"
   },
   "dependencies": {
+    "cheerio": "^1.2.0",
     "lucide-react": "^0.468.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

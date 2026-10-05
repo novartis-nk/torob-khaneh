@@ -237,6 +237,12 @@ export default function App() {
             </strong>
             <span className="brand-beta">یک تجربهٔ تازه</span>
           </button>
+          <div className="service-switch" aria-label="سرویس‌ها">
+            <a href="/" aria-current="page">
+              خانه
+            </a>
+            <a href="/safar">سفر</a>
+          </div>
           <nav aria-label="منوی اصلی">
             <button
               className={!savedOnly ? 'nav-active' : ''}
@@ -252,6 +258,7 @@ export default function App() {
           <div className="header-actions">
             <button
               className={savedOnly ? 'saved-nav active' : 'saved-nav'}
+              aria-label="نشان‌شده‌ها"
               onClick={() => {
                 setSavedOnly(!savedOnly);
                 resultsRef.current?.scrollIntoView({ behavior: 'smooth' });

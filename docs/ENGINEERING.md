@@ -1,5 +1,7 @@
 # Engineering notes
 
+This document describes the housing implementation. For the separately implemented travel adapters, trip model and limitations, see [Safar](SAFAR.md).
+
 ## Data path
 
 `three raw fixture schemas → strict normalization → SQLite raw + normalized observations → complete-link grouping → hard eligibility filters → offer selection → deterministic ranking → UI evidence`

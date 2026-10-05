@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { openStore, ingest, loadDataset, loadHomes, getStats } from './store.mjs';
 import { searchHomes, DISTRICTS } from './engine.mjs';
+import { searchSafar } from './safar/engine.mjs';
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const dev = process.argv.includes('--dev');
 const db = openStore(process.env.DATABASE_PATH || path.join(ROOT, 'data/catalog.sqlite'));
@@ -33,6 +34,15 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== 'GET') return json(res, 405, { error: 'method_not_allowed' });
     try {
       if (url.pathname === '/api/health') return json(res, 200, { ok: true });
+      if (url.pathname === '/api/safar/search') {
+        const file = path.join(ROOT, 'data/safar-catalog.json');
+        if (!existsSync(file)) return json(res, 503, { error: 'safar_catalog_unavailable' });
+        return json(
+          res,
+          200,
+          searchSafar(JSON.parse(readFileSync(file, 'utf8')), Object.fromEntries(url.searchParams)),
+        );
+      }
       if (url.pathname === '/api/catalog') {
         const homes = loadHomes(db);
         return json(res, 200, { ...getStats(db, homes), districts: DISTRICTS });
@@ -55,7 +65,7 @@ const server = http.createServer(async (req, res) => {
       }
       return json(res, 404, { error: 'not_found' });
     } catch (error) {
-      if (error.message.startsWith('invalid_filter'))
+      if (error.message.startsWith('invalid_filter') || error.message.startsWith('invalid_trip'))
         return json(res, 400, { error: error.message });
       console.error(error);
       return json(res, 500, { error: 'internal_error' });
@@ -81,6 +91,8 @@ const server = http.createServer(async (req, res) => {
     '.css': 'text/css',
     '.svg': 'image/svg+xml',
     '.jpg': 'image/jpeg',
+    '.png': 'image/png',
+    '.webp': 'image/webp',
     '.woff2': 'font/woff2',
     '.json': 'application/json',
   };

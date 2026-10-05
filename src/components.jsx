@@ -41,6 +41,7 @@ export function HomePhoto({ home, className = '', children }) {
 export function Modal({ title, children, onClose, wide = false }) {
   const ref = useRef(null);
   const headingId = useId();
+  const returnFocus = useRef(document.activeElement);
   useEffect(() => {
     const el = ref.current;
     el.showModal();
@@ -49,6 +50,7 @@ export function Modal({ title, children, onClose, wide = false }) {
     return () => {
       document.body.style.overflow = old;
       el.close();
+      if (returnFocus.current?.isConnected) returnFocus.current.focus({ preventScroll: true });
     };
   }, []);
   return (
