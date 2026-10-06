@@ -206,10 +206,18 @@ button:hover {
   gap: 28px;
   align-self: stretch;
 }
-.header nav button {
+.header nav button,
+.header nav a {
   font-size: 13px;
   position: relative;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+}
+.header nav a:hover {
+  color: var(--red);
 }
 .header nav .nav-active {
   color: var(--red);
@@ -848,8 +856,8 @@ input[type='checkbox'] {
   text-align: initial;
 }
 .home-photo {
-  background-image: url('/images/apartments.png');
-  background-size: 300% auto;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
   background-color: #f1ede7;
   width: 100%;

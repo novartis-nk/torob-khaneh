@@ -8,7 +8,17 @@ This document describes the housing implementation. For the separately implement
 
 The runtime backend is Python. React is compiled to static assets; Vite proxies `/api` to Python during development, and Python serves `dist/` in production. PostgreSQL holds raw observations, normalized observations, rejected records, source onboarding requests and crawl tasks.
 
-Website onboarding has two explicit paths. An API request stores the provider endpoint and waits for access/adapter review. A crawl request creates a durable task; the separate `backend.worker` claims tasks with PostgreSQL row locks so crawling never blocks an HTTP request. The worker boundary is where rate limits, retries, robots policy and adapter execution belong.
+Website onboarding begins with one automatic path. A source request creates a durable `discovery` task; the separate `backend.worker` claims it with PostgreSQL row locks so research never blocks an HTTP request. The worker uses public web-search evidence and strict structured outputs for source discovery and API coverage. It chooses API only when every correctness field is evidenced with sufficient confidence. Otherwise it produces a scraper plan. The legacy crawl-only endpoint remains for compatibility.
+
+The AI does not deploy code. An API decision is rendered into a validated, GET-only declarative manifest and a small factory model using `backend.api_factory`; credential values are never generated or persisted. A scrape decision creates a review artifact plus `scrape:planned` and `monitor:waiting_activation` tasks. Human access/policy review and fixture verification must happen before either route is activated.
+
+The responsibility prompts are independently versionable:
+
+- `source_discovery.md`: official API/feed/developer evidence and access model.
+- `api_coverage.md`: strict required-field and price/availability semantics decision.
+- `api_adapter_factory.md`: request, pagination, field mapping and fixture model.
+- `scraper_planner.md`: stable extraction sources, quality gates, retries and policy review.
+- `scrape_monitor.md`: drift, null rates, completeness, freshness, errors and pause decisions.
 
 ## Extensibility patterns
 
@@ -20,7 +30,7 @@ The backend separates source-specific behavior from comparison logic:
 - **Application services:** housing search, travel search and crawl requests own use-case rules. The HTTP layer only parses requests, maps validation failures and serializes responses.
 - **Dependency direction:** the protocols in `backend/ports.py` are the stable boundary. Adapters and persistence depend on those contracts; UI and HTTP code do not depend on individual websites.
 
-For many websites, the next operational layer is a durable worker queue with per-domain concurrency and rate limits, authorization/robots policy, retries with a dead-letter queue, adapter versioning, observation idempotency, source health metrics and a manual review path. The queued request already carries the source URL, vertical, status and eventual `adapterKey` needed by that workflow.
+Before live ingestion, the planned scrape/API executors still need per-domain concurrency, approved credentials, scheduled monitoring, a dead-letter queue, adapter version promotion, source-specific browser fixtures and operator controls. The generated plans define these requirements but intentionally do not represent an activated scraper.
 
 ## API
 
@@ -28,9 +38,10 @@ For many websites, the next operational layer is a durable worker queue with per
 - `GET /api/catalog`: source counts, rejection count, neighborhoods, fixture timestamp.
 - `GET /api/search?q=...&maxDeposit=600&maxRent=20&rate=1`: structured inputs override extracted intent; price filters are in millions of toman. Unknown/invalid supported filter values return 400. All amounts in returned offers are integer toman.
 - `GET /api/source/:id`: raw and normalized sample observation.
-- `POST /api/source-requests`: validate `{url, vertical, method, apiUrl?, notes}`; API requests wait for access review and crawl requests create a task; returns HTTP 202 and a tracking ID.
+- `POST /api/source-requests`: validate `{url, vertical, notes}`; create an automatic AI discovery task and return HTTP 202 with a tracking ID.
 - `POST /api/crawl-requests`: compatibility alias for `method=crawl`.
-- `GET /api/crawl-requests/:id`: inspect the queued request state.
+- `GET /api/source-requests/:id`: inspect resolution, evidence, generated artifact and task states.
+- `GET /api/crawl-requests/:id`: compatibility lookup.
 
 Search responses contain selected source offers, all source observations, staleness and eligibility flags, score components and evidence. Query length is bounded. Database queries are parameterized. Raw evidence is rendered as escaped text by React. Static serving is constrained to the build directory. No secrets are sent to the client.
 
@@ -48,7 +59,7 @@ Original source prices are never mutated when the user's comparison weight chang
 
 ## Query interpretation
 
-`rules-v1` handles a documented narrow Persian grammar. This is not semantic search. Supported extracted constraints are shown and can be removed. Unsupported example terms produce warnings. It does not support arbitrary geographic expressions, all Persian number words, broad negation, travel-time routing, or every word ordering. An LLM is not required by the challenge; AI was used during development, not represented as a deployed service.
+`rules-v1` handles a documented narrow Persian grammar. This is not semantic search. Supported extracted constraints are shown and can be removed. Unsupported example terms produce warnings. It does not support arbitrary geographic expressions, all Persian number words, broad negation, travel-time routing, or every word ordering. The optional LLM is isolated to source onboarding; user search remains deterministic.
 
 ## Operational boundary
 

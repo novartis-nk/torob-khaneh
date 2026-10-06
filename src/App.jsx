@@ -256,6 +256,10 @@ export default function App() {
             >
               کشف خانه‌ها
             </button>
+            <a href="/explore">
+              <Icon name={Sparkles} size={16} />
+              اکسپلور
+            </a>
             <button onClick={() => setModal('how')}>چطور کار می‌کند؟</button>
           </nav>
           <div className="header-actions">

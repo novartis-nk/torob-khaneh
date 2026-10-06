@@ -48,6 +48,9 @@ class PostgresRepository:
                     task_id TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
                     UNIQUE(url, vertical, method)
                 );
+                ALTER TABLE source_requests ADD COLUMN IF NOT EXISTS resolved_method TEXT;
+                ALTER TABLE source_requests ADD COLUMN IF NOT EXISTS analysis JSONB;
+                ALTER TABLE source_requests ADD COLUMN IF NOT EXISTS artifact_path TEXT;
                 CREATE TABLE IF NOT EXISTS crawl_tasks (
                     id TEXT PRIMARY KEY, request_id TEXT NOT NULL REFERENCES source_requests(id),
                     status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0,
@@ -56,6 +59,24 @@ class PostgresRepository:
                 );
                 CREATE INDEX IF NOT EXISTS crawl_tasks_ready_idx
                     ON crawl_tasks (status, available_at);
+                CREATE TABLE IF NOT EXISTS source_tasks (
+                    id TEXT PRIMARY KEY,
+                    request_id TEXT NOT NULL REFERENCES source_requests(id),
+                    kind TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    attempts INTEGER NOT NULL DEFAULT 0,
+                    available_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    locked_at TIMESTAMPTZ,
+                    worker_id TEXT,
+                    last_error TEXT,
+                    payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+                    UNIQUE(request_id, kind)
+                );
+                CREATE INDEX IF NOT EXISTS source_tasks_ready_idx
+                    ON source_tasks (status, available_at);
+                INSERT INTO source_tasks (id,request_id,kind,status,attempts,available_at,locked_at,worker_id,last_error)
+                    SELECT id,request_id,'scrape',status,attempts,available_at,locked_at,worker_id,last_error
+                    FROM crawl_tasks WHERE true ON CONFLICT (id) DO NOTHING;
             """)
 
     def is_empty(self) -> bool:
@@ -110,38 +131,83 @@ class PostgresRepository:
     def save_source_request(self, request: CrawlRequest) -> CrawlRequest:
         with self.connect() as db:
             row = db.execute("""INSERT INTO source_requests
-                (id,url,domain,vertical,notes,method,api_url,status,adapter_key,task_id,created_at)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                (id,url,domain,vertical,notes,method,api_url,status,adapter_key,task_id,created_at,
+                 resolved_method,analysis,artifact_path)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s)
                 ON CONFLICT (url,vertical,method) DO UPDATE SET notes=EXCLUDED.notes
                 RETURNING *""", (request.id, request.url, request.domain, request.vertical, request.notes,
                                    request.method, request.api_url, request.status, request.adapter_key,
-                                   request.task_id, request.created_at)).fetchone()
-            if request.method == "crawl":
-                db.execute("""INSERT INTO crawl_tasks (id,request_id,status) VALUES (%s,%s,'queued')
-                    ON CONFLICT (id) DO NOTHING""", (request.task_id, row["id"]))
-                row = db.execute("UPDATE source_requests SET task_id=%s WHERE id=%s RETURNING *",
-                                 (request.task_id, row["id"])).fetchone()
-        return self._source_request(row)
+                                   request.task_id, request.created_at, request.resolved_method,
+                                   json.dumps(request.analysis, ensure_ascii=False) if request.analysis else None,
+                                   request.artifact_path)).fetchone()
+            if request.task_id:
+                kind = "discovery" if request.method == "auto" else "scrape"
+                db.execute("""INSERT INTO source_tasks (id,request_id,kind,status) VALUES (%s,%s,%s,'queued')
+                    ON CONFLICT (id) DO NOTHING""", (request.task_id, row["id"], kind))
+        return self.source_request(row["id"])
 
     def source_request(self, identity: str) -> CrawlRequest | None:
         with self.connect() as db:
             row = db.execute("SELECT * FROM source_requests WHERE id=%s", (identity,)).fetchone()
-        return self._source_request(row) if row else None
+            tasks = list(db.execute("""SELECT id,kind,status,attempts,last_error FROM source_tasks
+                WHERE request_id=%s ORDER BY kind""", (identity,))) if row else []
+        return self._source_request(row, tasks) if row else None
 
-    def claim_crawl_task(self, worker_id: str) -> dict[str, Any] | None:
+    def claim_source_task(self, worker_id: str) -> dict[str, Any] | None:
         with self.connect() as db:
-            row = db.execute("""SELECT t.id, t.request_id, r.url, r.vertical
-                FROM crawl_tasks t JOIN source_requests r ON r.id=t.request_id
-                WHERE t.status='queued' AND t.available_at <= now()
+            row = db.execute("""SELECT t.id,t.request_id,t.kind,t.payload,r.url,r.domain,r.vertical,
+                    r.notes,r.method,r.api_url,r.status,r.adapter_key,r.task_id,r.created_at
+                FROM source_tasks t JOIN source_requests r ON r.id=t.request_id
+                WHERE t.status='queued' AND t.kind='discovery' AND t.available_at <= now()
                 ORDER BY t.available_at FOR UPDATE SKIP LOCKED LIMIT 1""").fetchone()
             if not row:
                 return None
-            return db.execute("""UPDATE crawl_tasks SET status='running', locked_at=now(), worker_id= %s,
-                attempts=attempts+1 WHERE id=%s RETURNING id, request_id, url, vertical""", (worker_id, row["id"])).fetchone()
+            db.execute("""UPDATE source_tasks SET status='running',locked_at=now(),worker_id=%s,
+                attempts=attempts+1 WHERE id=%s""", (worker_id, row["id"]))
+            db.execute("UPDATE source_requests SET status=%s WHERE id=%s", (f"{row['kind']}_running", row["request_id"]))
+            return row
+
+    def claim_crawl_task(self, worker_id: str) -> dict[str, Any] | None:
+        return self.claim_source_task(worker_id)
+
+    def complete_source_task(self, task_id: str, result: Any) -> None:
+        import hashlib
+
+        with self.connect() as db:
+            task = db.execute("SELECT request_id FROM source_tasks WHERE id=%s FOR UPDATE", (task_id,)).fetchone()
+            if not task:
+                raise ValueError("unknown_source_task")
+            request_id = task["request_id"]
+            db.execute("UPDATE source_tasks SET status='completed',last_error=NULL WHERE id=%s", (task_id,))
+            db.execute("""UPDATE source_requests SET status=%s,resolved_method=%s,analysis=%s::jsonb,
+                artifact_path=%s,adapter_key=%s,api_url=%s WHERE id=%s""",
+                (result.status, result.resolved_method, json.dumps(result.analysis, ensure_ascii=False),
+                 result.artifact_path, result.adapter_key, result.api_url, request_id))
+            if result.resolved_method == "crawl":
+                scrape_status = "blocked_policy" if result.status == "scraper_blocked" else "planned"
+                for kind, status in (("scrape", scrape_status), ("monitor", "waiting_activation")):
+                    identity = f"{kind}_" + hashlib.sha256(f"{request_id}|{kind}".encode()).hexdigest()[:12]
+                    db.execute("""INSERT INTO source_tasks (id,request_id,kind,status,payload)
+                        VALUES (%s,%s,%s,%s,%s::jsonb) ON CONFLICT (request_id,kind) DO NOTHING""",
+                        (identity, request_id, kind, status, json.dumps({"artifactPath": result.artifact_path})))
+
+    def fail_source_task(self, task_id: str, message: str, retry: bool) -> None:
+        with self.connect() as db:
+            task = db.execute("SELECT request_id,attempts FROM source_tasks WHERE id=%s FOR UPDATE", (task_id,)).fetchone()
+            if not task:
+                return
+            should_retry = retry and task["attempts"] < 3
+            delay_seconds = min(3600, 30 * (2 ** max(0, task["attempts"] - 1)))
+            db.execute("""UPDATE source_tasks SET status=%s,last_error=%s,
+                available_at=CASE WHEN %s THEN now() + (%s * interval '1 second') ELSE available_at END
+                WHERE id=%s""", ("queued" if should_retry else "failed", message[:1000], should_retry, delay_seconds, task_id))
+            db.execute("UPDATE source_requests SET status=%s WHERE id=%s",
+                       ("discovery_queued" if should_retry else "needs_review", task["request_id"]))
 
     @staticmethod
-    def _source_request(row: dict[str, Any]) -> CrawlRequest:
+    def _source_request(row: dict[str, Any], tasks: list[dict[str, Any]] | None = None) -> CrawlRequest:
         return CrawlRequest(id=row["id"], url=row["url"], domain=row["domain"], vertical=row["vertical"],
             notes=row["notes"], status=row["status"], adapter_key=row["adapter_key"],
             created_at=row["created_at"].isoformat().replace("+00:00", "Z"), method=row["method"],
-            api_url=row["api_url"], task_id=row["task_id"])
+            api_url=row["api_url"], task_id=row["task_id"], resolved_method=row.get("resolved_method"),
+            analysis=row.get("analysis"), artifact_path=row.get("artifact_path"), tasks=tasks or [])

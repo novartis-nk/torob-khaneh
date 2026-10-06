@@ -73,14 +73,14 @@ class Application:
 
     def post(self, path: str, values: dict[str, Any]) -> tuple[int, dict[str, Any]]:
         if path == "/api/crawl-requests":
-            request = self.crawls.submit(values)
+            request = self.crawls.submit({**values, "method": "crawl"})
             return 202, {
                 **request.as_dict(),
                 "message": "درخواست ثبت شد و پس از بررسی منبع، آداپتر مناسب به آن اختصاص می‌یابد.",
             }
         if path == "/api/source-requests":
-            request = self.crawls.submit(values)
-            return 202, {**request.as_dict(), "message": "درخواست منبع ثبت شد؛ مسیر API یا صف خزش بر اساس روش انتخابی ادامه پیدا می‌کند."}
+            request = self.crawls.submit({**values, "method": "auto"})
+            return 202, {**request.as_dict(), "message": "درخواست ثبت شد؛ عامل هوشمند ابتدا API رسمی و پوشش داده را بررسی می‌کند و سپس آداپتر یا برنامهٔ خزش را برای بازبینی می‌سازد."}
         return 404, {"error": "not_found"}
 
 

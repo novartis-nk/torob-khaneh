@@ -1,8 +1,13 @@
+.git
+.env
+.env.*
 node_modules
 dist
-.git
-artifacts
+generated
+data/*.sqlite*
+__pycache__
+*.pyc
 test-results
 playwright-report
-data/*.sqlite*
-.env
+artifacts
+.DS_Store

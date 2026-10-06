@@ -2,22 +2,17 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "Torob Khaneh · Search, Crawl Request & Pricing Flows",
-    "subtitle": "Current local architecture: React → Python API → PostgreSQL → task-worker",
+    "title": "Torob Khaneh · Explore, Search & AI Source Onboarding",
+    "subtitle": "Current local working tree: React experiences → Python API → AI discovery → review-only integration artifacts",
     "output": ".archify/architecture-torob-khaneh-20261006/torob-khaneh-flows.html",
     "quality_profile": "showcase",
-    "repository": {
-      "url": "git@localhost:torob-khaneh.git",
-      "link_mode": "local-only",
-      "revision": "74e55bdea9bb5663efc1208392e1f05399ca8a3c"
-    },
     "legend": {
       "mode": "all",
       "entries": {
-        "frontend": { "label": "Frontend" },
+        "frontend": { "label": "Browser experience" },
         "backend": { "label": "Python service" },
-        "database": { "label": "Persistence" },
-        "external": { "label": "Input / snapshot" }
+        "database": { "label": "Durable state / artifacts" },
+        "external": { "label": "External provider / fixture" }
       }
     }
   },
@@ -26,12 +21,11 @@
       "id": "browser",
       "type": "frontend",
       "label": "React web app",
-      "sublabel": "Landing, Khaneh & Safar",
-      "tag": "RTL UI",
+      "sublabel": "Landing · Khaneh · Safar · Explore reels",
+      "tag": "RTL + accessible tabs",
       "icon": "frontend",
       "pos": [40, 300],
-      "size": [170, 72],
-      "sources": [{ "path": "src/landing/Landing.jsx", "line": 106, "end_line": 200, "label": "search entry + crawl CTA" }]
+      "size": [200, 78]
     },
     {
       "id": "api",
@@ -40,31 +34,28 @@
       "sublabel": "ThreadingHTTPServer · /api",
       "tag": "request boundary",
       "icon": "backend",
-      "pos": [280, 300],
-      "size": [180, 72],
-      "sources": [{ "path": "backend/app.py", "line": 30, "end_line": 73, "label": "routes + services" }]
+      "pos": [350, 300],
+      "size": [185, 78]
     },
     {
       "id": "housing",
       "type": "backend",
       "label": "Housing search",
-      "sublabel": "intent · eligibility · grouping",
+      "sublabel": "intent · eligibility · ranking",
       "tag": "hard filters first",
       "icon": "backend",
-      "pos": [540, 110],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/housing.py", "line": 155, "end_line": 243, "label": "search service" }]
+      "pos": [350, 70],
+      "size": [200, 78]
     },
     {
-      "id": "crawl",
+      "id": "source_request",
       "type": "backend",
-      "label": "Crawl request service",
-      "sublabel": "validate · canonicalize · queue",
+      "label": "Source request service",
+      "sublabel": "validate · canonicalize · queue discovery",
       "tag": "HTTP 202",
       "icon": "clock",
-      "pos": [640, 300],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/crawl.py", "line": 13, "end_line": 55, "label": "queued source request" }]
+      "pos": [700, 300],
+      "size": [200, 78]
     },
     {
       "id": "travel",
@@ -73,53 +64,18 @@
       "sublabel": "dates · guests · starting prices",
       "tag": "quote boundary",
       "icon": "backend",
-      "pos": [540, 490],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/travel.py", "line": 92, "end_line": 182, "label": "Safar search" }]
+      "pos": [40, 530],
+      "size": [200, 78]
     },
     {
-      "id": "adapters",
-      "type": "backend",
-      "label": "Adapter registry",
-      "sublabel": "direct · agency · portal",
-      "tag": "add websites here",
-      "icon": "backend",
-      "pos": [700, 30],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/adapters.py", "line": 186, "end_line": 201, "label": "adapter factory" }]
-    },
-    {
-      "id": "ranking",
-      "type": "backend",
-      "label": "Ranking registry",
-      "sublabel": "recommended · rent · deposit · metro",
-      "tag": "strategy plug-ins",
-      "icon": "backend",
-      "pos": [800, 200],
-      "size": [210, 72],
-      "sources": [{ "path": "backend/ranking.py", "line": 20, "end_line": 39, "label": "ranking strategies" }]
-    },
-    {
-      "id": "repository",
-      "type": "backend",
-      "label": "PostgreSQL repository",
-      "sublabel": "raw · normalized · source requests · tasks",
-      "tag": "Repository pattern",
+      "id": "store",
+      "type": "database",
+      "label": "Catalog & task store",
+      "sublabel": "offers · requests · discovery/scrape/monitor tasks",
+      "tag": "PostgreSQL or local SQLite",
       "icon": "database",
-      "pos": [780, 420],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/postgres.py", "line": 24, "end_line": 61, "label": "PostgreSQL tables" }]
-    },
-    {
-      "id": "worker",
-      "type": "backend",
-      "label": "Crawl task-worker",
-      "sublabel": "claim · retry · adapter execution",
-      "tag": "FOR UPDATE SKIP LOCKED",
-      "icon": "clock",
-      "pos": [780, 760],
-      "size": [210, 72],
-      "sources": [{ "path": "backend/worker.py", "line": 8, "end_line": 25, "label": "worker loop" }]
+      "pos": [350, 530],
+      "size": [205, 78]
     },
     {
       "id": "snapshots",
@@ -128,30 +84,123 @@
       "sublabel": "data/offers.json + Safar JSON",
       "tag": "local fixtures",
       "icon": "external",
-      "pos": [700, 600],
-      "size": [190, 72],
-      "sources": [{ "path": "backend/app.py", "line": 35, "end_line": 57, "label": "fixture loading" }]
+      "pos": [40, 760],
+      "size": [205, 78]
+    },
+    {
+      "id": "worker",
+      "type": "backend",
+      "label": "Source discovery worker",
+      "sublabel": "claim · retry · persist result",
+      "tag": "isolated from HTTP",
+      "icon": "clock",
+      "pos": [350, 760],
+      "size": [190, 78]
+    },
+    {
+      "id": "orchestrator",
+      "type": "backend",
+      "label": "Onboarding orchestrator",
+      "sublabel": "official API coverage gate → API or scrape",
+      "tag": "confidence ≥ 0.70",
+      "icon": "security",
+      "pos": [350, 990],
+      "size": [205, 78]
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Source intelligence agent",
+      "sublabel": "discovery · coverage · adapter · scraper · monitor",
+      "tag": "5 master prompts",
+      "icon": "backend",
+      "pos": [700, 990],
+      "size": [205, 78]
+    },
+    {
+      "id": "openai",
+      "type": "external",
+      "label": "OpenAI Responses API",
+      "sublabel": "strict JSON schemas + optional web search",
+      "tag": "OPENAI_API_KEY",
+      "icon": "external",
+      "pos": [700, 1220],
+      "size": [180, 78]
+    },
+    {
+      "id": "artifact_factory",
+      "type": "backend",
+      "label": "Integration artifact factory",
+      "sublabel": "validated adapter model or scraper task plan",
+      "tag": "review required",
+      "icon": "security",
+      "pos": [350, 1220],
+      "size": [205, 78]
+    },
+    {
+      "id": "review_files",
+      "type": "database",
+      "label": "Review artifacts",
+      "sublabel": "adapter .py/.json OR scraper plan + task",
+      "tag": "not auto-deployed",
+      "icon": "database",
+      "pos": [40, 1220],
+      "size": [180, 78]
     }
   ],
   "boundaries": [
-    { "kind": "region", "label": "Browser runtime", "wraps": ["browser"] },
-    { "kind": "region", "label": "Python application runtime", "wraps": ["api", "housing", "crawl", "travel", "adapters", "ranking", "repository", "worker"] }
+    { "kind": "region", "label": "Browser runtime", "wraps": ["browser"] }
   ],
   "connections": [
     { "id": "browser-api", "from": "browser", "to": "api", "label": "HTTP /api", "variant": "emphasis" },
-    { "id": "api-housing", "from": "api", "to": "housing", "label": "GET /api/search" },
-    { "id": "api-crawl", "from": "api", "to": "crawl", "label": "POST /api/crawl-requests" },
-    { "id": "api-travel", "from": "api", "to": "travel", "label": "GET /api/safar/search" },
-    { "id": "housing-ranking", "from": "housing", "to": "ranking", "variant": "emphasis" },
-    { "id": "housing-repository", "from": "housing", "to": "repository", "label": "read observations" },
-    { "id": "crawl-worker", "from": "crawl", "to": "worker", "label": "queued task", "variant": "dashed" },
-    { "id": "worker-repository", "from": "worker", "to": "repository", "label": "claim with row lock", "variant": "dashed" },
-    { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read Safar catalog" },
-    { "id": "adapters-repository", "from": "adapters", "to": "repository", "label": "normalized offers", "variant": "dashed" }
+    { "id": "api-housing", "from": "api", "to": "housing", "label": "home search" },
+    { "id": "api-source", "from": "api", "to": "source_request", "label": "submit site", "variant": "emphasis" },
+    { "id": "api-travel", "from": "api", "to": "travel", "label": "trip search", "fromSide": "bottom", "toSide": "right" },
+    { "id": "api-store", "from": "api", "to": "store", "label": "read homes", "fromSide": "bottom", "toSide": "top" },
+    { "id": "travel-snapshots", "from": "travel", "to": "snapshots", "label": "read catalog" },
+    { "id": "source-store", "from": "source_request", "to": "store", "label": "queue discovery", "variant": "emphasis", "fromSide": "bottom", "toSide": "right" },
+    { "id": "worker-store", "from": "worker", "to": "store", "label": "claim + result/retry", "variant": "dashed" },
+    { "id": "worker-orchestrator", "from": "worker", "to": "orchestrator", "label": "onboard", "variant": "emphasis" },
+    { "id": "orchestrator-agent", "from": "orchestrator", "to": "agent", "label": "investigate + assess" },
+    { "id": "agent-openai", "from": "agent", "to": "openai", "label": "structured calls", "variant": "dashed" },
+    { "id": "orchestrator-factory", "from": "orchestrator", "to": "artifact_factory", "label": "API or scrape branch", "variant": "emphasis" },
+    { "id": "factory-files", "from": "artifact_factory", "to": "review_files", "label": "write review package", "variant": "dashed" }
   ],
   "cards": [
-    { "dot": "cyan", "title": "Search flow", "items": ["React sends structured search to Python", "Housing applies intent, freshness and paired budget filters", "Ranking strategies order only eligible homes"] },
-    { "dot": "amber", "title": "Source onboarding", "items": ["The UI chooses API ingestion or crawl", "API sources wait for access and adapter review", "Crawl sources become PostgreSQL tasks claimed by a worker"] },
-    { "dot": "violet", "title": "Pricing guarantees", "items": ["Deposit and rent remain separate source values", "Effective cost can weight deposit for comparison", "Starting nightly prices are never presented as confirmed trip totals"] }
+    {
+      "dot": "cyan",
+      "title": "Explore & search",
+      "items": [
+        "Explore adds full-screen snap reels, search, grid and saved views",
+        "Explore and Khaneh share GET /api/search and the khaneh-saved browser key",
+        "Housing and Safar preserve pricing scope and freshness constraints"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Automatic source onboarding",
+      "items": [
+        "The user submits one website request; discovery checks official APIs first",
+        "Complete evidenced coverage creates a validated review-only API factory model",
+        "Missing coverage creates a scraper plan plus scrape and monitoring tasks"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Safety & activation gate",
+      "items": [
+        "External findings are untrusted input constrained by strict structured schemas",
+        "Generated adapters are HTTPS, GET-only and credential values are never embedded",
+        "Scraping requires policy, selector and quality verification before activation"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "Evidence scope",
+      "items": [
+        "The diagram describes the current local working tree rather than a committed revision",
+        "Explore and AI onboarding remain uncommitted working-tree additions"
+      ]
+    }
   ]
 }

@@ -16,7 +16,7 @@ Verified on Python 3.14.3, Node 25.2.1 and installed Google Chrome. Scope: landi
 | Keyboard | Dialog dismissal restores focus; existing housing keyboard tabs pass |
 | Combined demo | H.264 MP4, 1280 × 900, 278.56 seconds (4:39), 4,731,411 bytes; silent with Persian captions |
 
-The updated landing page and crawl-request dialog were visually reviewed at desktop size. Python tests cover the adapter registry, quarantine behavior, hard price constraints, ranking strategies, SQLite persistence, crawl-request validation/idempotency/tracking and the boundary between nightly teasers and confirmed trip quotes.
+The updated landing page and source-request dialog were visually reviewed at desktop size. Python tests cover the adapter registry, quarantine behavior, hard price constraints, ranking strategies, SQLite persistence, source-request validation/idempotency/tracking, strict AI request construction, API adapter artifact generation, scraper/monitor fallback tasks and the boundary between nightly teasers and confirmed trip quotes.
 
 Browser tests exercise the logo and crawl-request flow, both services, shortlist persistence, shared trip/compare restoration, calendar and guest changes, confirmed-total filtering, request failure/retry, malformed shared links, mobile filters and accessibility. Source refresh previously retrieved 36 Jabama, 24 Otaghak and 15 Jajiga records. Earlier refresh failures retained prior timestamps rather than claiming fresh observations.
 

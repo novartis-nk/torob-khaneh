@@ -26,13 +26,12 @@ export const Icon = ({ name: Component, size = 18, ...props }) => (
   <Component size={size} strokeWidth={1.7} aria-hidden="true" {...props} />
 );
 export function HomePhoto({ home, className = '', children }) {
-  const index = Number(home.image.match(/home-(\d)/)?.[1] || 1) - 1;
   return (
     <div
       role="img"
       aria-label="تصویر تولیدشده برای نمونه؛ تصویر واقعی این ملک نیست"
       className={`home-photo ${className}`}
-      style={{ backgroundPosition: `${(index % 3) * 50}% ${index < 3 ? 15 : 85}%` }}
+      style={{ backgroundImage: `url(${home.image})` }}
     >
       {children}
     </div>

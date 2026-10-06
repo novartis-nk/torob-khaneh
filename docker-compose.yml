@@ -26,8 +26,14 @@ services:
     command: ["python3", "-m", "backend.worker"]
     environment:
       DATABASE_URL: postgresql://torob:torob_dev@postgres:5432/torob_khaneh
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      INTEGRATION_ARTIFACT_DIR: /data/integrations
+    volumes:
+      - torob-integrations:/data/integrations
     depends_on:
       - postgres
 
 volumes:
   torob-postgres:
+  torob-integrations:

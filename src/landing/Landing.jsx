@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, X, House, Compass, Globe2, Send, CircleCheck } from 'lucide-react';
+import { Search, X, House, Compass, Globe2, Send, CircleCheck, Sparkles } from 'lucide-react';
 import { Icon, Modal } from '../components';
 import './landing.css';
 const SERVICES = {
@@ -70,8 +70,6 @@ export default function Landing() {
   const [crawlForm, setCrawlForm] = useState({
     url: '',
     vertical: 'housing',
-    method: 'crawl',
-    apiUrl: '',
     notes: '',
   });
   const [crawlState, setCrawlState] = useState({ status: 'idle', message: '', request: null });
@@ -96,14 +94,11 @@ export default function Landing() {
     event.preventDefault();
     setCrawlState({ status: 'loading', message: '', request: null });
     try {
-      const response = await fetch(
-        crawlForm.method === 'crawl' ? '/api/crawl-requests' : '/api/source-requests',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(crawlForm),
-        },
-      );
+      const response = await fetch('/api/source-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(crawlForm),
+      });
       const result = await response.json();
       if (!response.ok) throw new Error('آدرس سایت معتبر نیست یا درخواست ثبت نشد.');
       setCrawlState({ status: 'success', message: result.message, request: result });
@@ -198,6 +193,10 @@ export default function Landing() {
             </div>
           </div>
           <nav className="landing-browse" aria-label="ورود مستقیم بدون جست‌وجو">
+            <a href="/explore">
+              <Icon name={Sparkles} size={16} />
+              اکسپلور تصویری خانه‌ها
+            </a>
             <a href="/khaneh">
               <Icon name={House} size={16} />
               دیدن همهٔ خانه‌ها
@@ -244,7 +243,7 @@ export default function Landing() {
           {crawlState.status === 'success' ? (
             <div className="landing-crawl-success" aria-live="polite">
               <Icon name={CircleCheck} size={38} />
-              <h3>درخواست در صف بررسی است</h3>
+              <h3>درخواست در صف بررسی هوشمند است</h3>
               <p>{crawlState.message}</p>
               <dl>
                 <div>
@@ -263,8 +262,10 @@ export default function Landing() {
           ) : (
             <form className="landing-crawl-form" onSubmit={requestCrawl}>
               <p>
-                روش اتصال را انتخاب کنید: API برای منبعی که فهرست رسمی دارد، یا خزش که به صف
-                task-worker می‌رود. درخواست ابتدا از نظر دسترسی و کیفیت داده بررسی می‌شود.
+                آدرس سایت و داده‌های موردنیاز را وارد کنید. عامل هوشمند ابتدا API رسمی، دسترسی و
+                پوشش فیلدها را بررسی می‌کند؛ اگر کافی باشد مدل اتصال می‌سازد و در غیر این صورت
+                برنامهٔ خزش و پایش را برای بازبینی آماده می‌کند. آدرس و توضیحات به سرویس هوش مصنوعی
+                تنظیم‌شده ارسال می‌شود؛ اطلاعات محرمانه وارد نکنید.
               </p>
               <label>
                 آدرس سایت
@@ -279,30 +280,6 @@ export default function Landing() {
                 />
               </label>
               <label>
-                روش اتصال
-                <select
-                  value={crawlForm.method}
-                  onChange={(event) => setCrawlForm({ ...crawlForm, method: event.target.value })}
-                >
-                  <option value="crawl">خزش با صف task-worker</option>
-                  <option value="api">اتصال از طریق API</option>
-                </select>
-              </label>
-              {crawlForm.method === 'api' && (
-                <label>
-                  آدرس API
-                  <input
-                    required
-                    type="url"
-                    inputMode="url"
-                    dir="ltr"
-                    placeholder="https://example.com/api/listings"
-                    value={crawlForm.apiUrl}
-                    onChange={(event) => setCrawlForm({ ...crawlForm, apiUrl: event.target.value })}
-                  />
-                </label>
-              )}
-              <label>
                 نوع داده
                 <select
                   value={crawlForm.vertical}
@@ -313,11 +290,11 @@ export default function Landing() {
                 </select>
               </label>
               <label>
-                توضیح کوتاه <span>اختیاری</span>
+                داده‌های موردنیاز و توضیحات <span>اختیاری</span>
                 <textarea
                   maxLength={500}
                   rows={3}
-                  placeholder="مثلاً صفحهٔ عمومی نتایج یا نکته‌ای دربارهٔ قیمت‌ها"
+                  placeholder="مثلاً قیمت نهایی، موجودی، موقعیت و زمان آخرین به‌روزرسانی"
                   value={crawlForm.notes}
                   onChange={(event) => setCrawlForm({ ...crawlForm, notes: event.target.value })}
                 />

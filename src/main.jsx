@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
+import ExploreApp from './explore/ExploreApp.jsx';
 import Landing from './landing/Landing.jsx';
 import SafarApp from './safar/SafarApp.jsx';
 import './styles.css';
@@ -26,7 +27,13 @@ const legacyHousing =
   );
 if (legacyHousing) history.replaceState(null, '', `/khaneh${location.search}${location.hash}`);
 const Page =
-  pathname === '/safar' ? SafarApp : pathname === '/khaneh' || legacyHousing ? App : Landing;
+  pathname === '/safar'
+    ? SafarApp
+    : pathname === '/explore'
+      ? ExploreApp
+      : pathname === '/khaneh' || legacyHousing
+        ? App
+        : Landing;
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Page />

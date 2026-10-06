@@ -1,6 +1,6 @@
 # ترب خانه + سفر · Torob Khaneh & Safar
 
-A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Python + PostgreSQL, with source normalization, conservative duplicate grouping, explicit budget constraints, explainable ranking and a two-path website onboarding flow.
+A working Persian rental-comparison prototype for Torob’s AI Product Engineer challenge. **One home, all its offers.** React + Python + PostgreSQL, with source normalization, conservative duplicate grouping, explicit budget constraints, explainable ranking and AI-assisted website onboarding.
 
 The minimal search landing page at `/` has **اجاره و خرید** and **سفر** tabs. Submitting a search opens the selected service with the query or explicit destination/type filters. The housing catalog currently supports rentals, not purchases. Existing housing search links at `/?q=…` continue to work.
 
@@ -9,7 +9,7 @@ Two services share the interface:
 - **خانه** at `/khaneh`: synthetic long-term rental data, conservative duplicate grouping and explainable ranking.
 - **سفر** at `/safar`: a real public catalog snapshot from Jabama, Otaghak and Jajiga, Persian trip dates, guests, source filters, bookmarks and shareable property comparisons.
 
-This is an independent prototype without official Torob affiliation or a runtime LLM. Housing listings, prices, photos, coordinates and walk times are synthetic. Safar has 75 observed listings in Ramsar and surroundings; nightly starting prices do not establish date-specific availability or a final trip price. No live booking/quote integration is connected. See [Safar decisions and source limits](docs/SAFAR.md).
+This is an independent prototype without official Torob affiliation. Its optional onboarding worker uses an OpenAI model to research submitted websites and prepare review-only integration artifacts; search and ranking do not depend on an LLM. Housing listings, prices, photos, coordinates and walk times are synthetic. Safar has 75 observed listings in Ramsar and surroundings; nightly starting prices do not establish date-specific availability or a final trip price. No live booking/quote integration is connected. See [Safar decisions and source limits](docs/SAFAR.md).
 
 ## Run
 
@@ -32,11 +32,25 @@ The Python server binds to `127.0.0.1` by default. In development it runs on por
 
 The database initializes automatically from `data/offers.json` on first run. The checked-in snapshots run without an API key. Fonts, the Torob logo and selected property images are local; uncached Safar photographs may load from provider CDNs.
 
-## Requesting a new crawl source
+## AI-assisted source onboarding
 
-The landing page has a **درخواست افزودن سایت** flow with two methods. API sources use `POST /api/source-requests` with `method=api` and an API URL; crawl sources use `method=crawl`, create a PostgreSQL `crawl_tasks` row, and are claimed with `FOR UPDATE SKIP LOCKED` by `python -m backend.worker`. The legacy `POST /api/crawl-requests` endpoint remains as a crawl-only alias. Both return a tracking ID.
+The landing page has a **درخواست افزودن سایت** flow. `POST /api/source-requests` accepts a website, vertical and the user's data requirements, then creates a PostgreSQL discovery task. `python -m backend.worker` claims it with `FOR UPDATE SKIP LOCKED` and runs bounded responsibilities: public API discovery, required-field coverage analysis, declarative API-adapter modeling, or scraper planning. Five editable master prompts—including the later scrape-quality monitor—live in `backend/prompts/`.
 
-Submitting a request does not fetch the URL inside the HTTP request. A production worker would claim the queued job only after access rules and source quality are reviewed, then select a registered adapter. This avoids turning a public form into an arbitrary URL fetcher.
+If a documented/authorized API covers every required field, the worker writes a GET-only adapter manifest and Python factory under `INTEGRATION_ARTIFACT_DIR`. If coverage is incomplete, it writes a scraper specification and creates separate `scrape` and `monitor` tasks. Generated artifacts are never registered or executed automatically: access review, fixtures and human approval remain required.
+
+Configure the worker without exposing the key to the browser or API service:
+
+```sh
+cp .env.example .env
+# set OPENAI_API_KEY in .env
+docker compose up --build
+```
+
+`OPENAI_MODEL` selects the model. `INTEGRATION_ARTIFACT_DIR` defaults to `generated/integrations` outside Docker and `/data/integrations` in the worker container. The legacy `POST /api/crawl-requests` endpoint remains a crawl-only compatibility path.
+
+Submitting a request performs no arbitrary website fetch in the HTTP process. The AI worker searches public evidence and produces structured, validated outputs. Its prompts prohibit bypassing authentication, CAPTCHAs, access controls, rate limits, robots policy or contractual restrictions.
+
+The submitted URL and requirements are sent to the configured OpenAI API. Do not put credentials or private data in the request notes. `.dockerignore` excludes local environment files and generated artifacts from the image build context.
 
 ## Refresh the Safar catalog
 
@@ -104,6 +118,10 @@ backend/travel.py      trip validation and public-catalog search service
 backend/crawl.py       validated crawl-source request application service
 backend/postgres.py    PostgreSQL Repository for evidence, source requests and crawl tasks
 backend/worker.py      task-worker boundary for queued crawl jobs
+backend/source_ai.py   structured Responses API client and responsibility schemas
+backend/onboarding.py  source decision orchestration and artifact generation
+backend/api_factory.py validated declarative GET-only adapter factory
+backend/prompts/       discovery, coverage, adapter, scraper and monitor prompts
 backend/app.py         Python HTTP API and production static serving
 src/                   RTL React interface and responsive styles
 data/offers.json        three authored source formats, fixed observations

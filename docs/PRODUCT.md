@@ -36,8 +36,8 @@ A conventional listing feed makes the user reconcile entries. This prototype mov
 
 ## Current implementation
 
-- React frontend; Python HTTP API; SQLite persistence.
-- A public source-request flow queues websites for adapter review and returns a tracking ID; it does not perform arbitrary URL fetching in the request path.
+- React frontend; Python HTTP API; SQLite fixtures and PostgreSQL production persistence.
+- A public source-request flow queues websites for AI-assisted API discovery and returns a tracking ID; it does not fetch arbitrary URLs in the request path or auto-deploy generated integrations.
 - 28 authored raw records in three source schemas. One non-numeric price is quarantined; 27 valid observations form 14 distinct homes. One home has only stale offers, leaving 13 searchable homes at generation time.
 - Persian/Arabic digits, Persian letter variants, explicit rial/toman conversion, millions and billions.
 - Conservative duplicate grouping; same-size, same-photo apartments on different floors stay separate.
